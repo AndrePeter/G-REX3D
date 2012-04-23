@@ -3,5 +3,21 @@
 
     <string name="hello">Hello World, G_REX3DActivity!</string>
     <string name="app_name">G-REX3D</string>
-
+    
+    <!--  Widget labels -->
+    <string name="WFS">Web Feature Service</string>
+    <string name="SDCard">SD Card</string>
+    <string name="data_selection">Choose resource type</string>
+    
+    <!-- Strings concerning adding a new WFS -->
+    <string name="AddWFSButtonText">add WFS</string>
+    <string name="AddWFSTitle">Stored WFS with base URL</string>
+    <string name="WFSDialogTitle">New WFS</string>
+    <string name="WFSName">WFS Name:</string>
+    <string name="WFSBaseURL">WFS base URL:</string>
+    <string name="cancelItem">Cancel</string>
+    
+    <!-- Strings concerning WFS Context menu -->
+    <string name="WFS_delete">Delete WFS</string>    
+    
 </resources>
