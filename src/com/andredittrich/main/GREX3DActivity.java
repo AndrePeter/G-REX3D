@@ -60,44 +60,44 @@ public class GREX3DActivity extends Activity {
 		//
 
 		// sax stuff
-		try {
-			SAXParserFactory spf = SAXParserFactory.newInstance();
-			SAXParser sp = spf.newSAXParser();
-
-			XMLReader xr = sp.getXMLReader();
-
-			XMLHandler Handler = new XMLHandler();
-			xr.setContentHandler(Handler);
-
-			Log.d("root", "1");
-//			String xmlString="<?xml version=\"1.0\" encoding=\"UTF-8\"?><note>Testnotiz</note>";
-//			StringReader inStream = new StringReader(xmlString);
-//			InputSource inSource = new InputSource(inStream);
-//			
-//			xr.parse(inSource);
-			xr.parse(new InputSource(new FileInputStream(Environment
-					.getExternalStorageDirectory() + "/data/balingen.xml")));
-//			Log.d("wert", Integer.toString(Handler.data.size()));
-			Log.d("length", Integer.toString(Handler.data.size()));
-//			Log.d("length", Handler.data.get(1));
-			int i = 0;
-			for (String tag : Handler.data) {
-				i++;
-//				String[] leer = tag.split("\\s");
-//				Log.d("achtung", Integer.toString(leer.length));
-				
-				Log.d("wertvoll", i + " " + tag );
-//				Log.d("wert", leer[0] + " " + leer[1] + " " + leer[2]);
-			}
-			Log.d("root", "2");
-
-		} catch (ParserConfigurationException pce) {
-			Log.e("SAX XML", "sax parse error", pce);
-		} catch (SAXException se) {
-			Log.e("SAX XML", "sax error", se);
-		} catch (IOException ioe) {
-			Log.e("SAX XML", "sax parse io error", ioe);
-		}
+//		try {
+//			SAXParserFactory spf = SAXParserFactory.newInstance();
+//			SAXParser sp = spf.newSAXParser();
+//
+//			XMLReader xr = sp.getXMLReader();
+//
+//			XMLHandler Handler = new XMLHandler();
+//			xr.setContentHandler(Handler);
+//
+//			Log.d("root", "1");
+////			String xmlString="<?xml version=\"1.0\" encoding=\"UTF-8\"?><note>Testnotiz</note>";
+////			StringReader inStream = new StringReader(xmlString);
+////			InputSource inSource = new InputSource(inStream);
+////			
+////			xr.parse(inSource);
+//			xr.parse(new InputSource(new FileInputStream(Environment
+//					.getExternalStorageDirectory() + "/data/balingen.xml")));
+////			Log.d("wert", Integer.toString(Handler.data.size()));
+//			Log.d("length", Integer.toString(Handler.data.size()));
+////			Log.d("length", Handler.data.get(1));
+//			int i = 0;
+//			for (String tag : Handler.data) {
+//				i++;
+////				String[] leer = tag.split("\\s");
+////				Log.d("achtung", Integer.toString(leer.length));
+//				
+//				Log.d("wertvoll", i + " " + tag );
+////				Log.d("wert", leer[0] + " " + leer[1] + " " + leer[2]);
+//			}
+//			Log.d("root", "2");
+//
+//		} catch (ParserConfigurationException pce) {
+//			Log.e("SAX XML", "sax parse error", pce);
+//		} catch (SAXException se) {
+//			Log.e("SAX XML", "sax error", se);
+//		} catch (IOException ioe) {
+//			Log.e("SAX XML", "sax parse io error", ioe);
+//		}
 
 		// Create a GLSurfaceView instance and set it
 		// as the ContentView for this Activity

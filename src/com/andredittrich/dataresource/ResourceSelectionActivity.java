@@ -27,8 +27,6 @@ public class ResourceSelectionActivity extends Activity {
 		sdcard.setOnClickListener(new OnClickListener() {
 			
 			public void onClick (View v) {
-				//TODO: Implement Intent for getting data from SD Card
-				sdcard.setText("OK");
 				Intent intent = new Intent(ResourceSelectionActivity.this, GREX3DActivity.class);				
 				startActivity(intent);
 			}
@@ -37,8 +35,6 @@ public class ResourceSelectionActivity extends Activity {
 		wfs.setOnClickListener(new OnClickListener() {
 			
 			public void onClick (View v) {
-				//TODO: Implement Intent for getting data from WFS
-				wfs.setText("OK");
 				Intent intent = new Intent(ResourceSelectionActivity.this, WFSSelectionActivity.class);				
 				startActivity(intent);
 			}

@@ -29,6 +29,7 @@ public class WFSSelectionActivity extends ListActivity implements
 	private SQLiteOnSD openHandler;
 	SimpleCursorAdapter mAdapter;
 	Button addWFS;
+	public static String CAP_URL = "Capabilities URL";
 	private static final int DIALOG_ADDWFS = 1;
 
 	@Override
@@ -81,8 +82,15 @@ public class WFSSelectionActivity extends ListActivity implements
 			url = "http://" + url;
 		}
 		Log.d("url", url);
-		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+		
+		Intent intent = new Intent(WFSSelectionActivity.this, FeatureTypeSelectionActivity.class);
+		intent.putExtra(CAP_URL, url);
 		startActivity(intent);
+		
+//		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+//		intent.setData(intent.getData());
+//		Log.d("datastring",intent.getDataString());
+//		startActivity(intent);
 	}
 
 	protected Dialog onCreateDialog(int id) {
@@ -107,6 +115,7 @@ public class WFSSelectionActivity extends ListActivity implements
 							openHandler.insert(wfsName.getText().toString(),
 									wfsBaseURL.getText().toString());
 							mAdapter.getCursor().requery();
+							mAdapter.notifyDataSetChanged();
 						}
 					});
 
