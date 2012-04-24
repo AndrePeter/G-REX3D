@@ -18,6 +18,8 @@
     <string name="cancelItem">Cancel</string>
     
     <!-- Strings concerning WFS Context menu -->
-    <string name="WFS_delete">Delete WFS</string>    
+    <string name="WFS_delete">Delete WFS</string>  
+    
+    <string name="FeatureTypeTitle">Choose Feature Type</string>
     
 </resources>

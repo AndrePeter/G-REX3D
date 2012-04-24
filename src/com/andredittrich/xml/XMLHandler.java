@@ -13,8 +13,14 @@ public class XMLHandler extends DefaultHandler {
 
 	public String elementValue = null;
 	Boolean elementOn = false;
+	public String searchTag;
 	public ArrayList<String> data = new ArrayList<String>();
 
+	
+	public XMLHandler(String tag) {
+		// TODO Auto-generated constructor stub
+		searchTag = tag;
+	}
 	/**
 	 * This will be called when the tags of the XML starts.
 	 **/
@@ -22,9 +28,10 @@ public class XMLHandler extends DefaultHandler {
 	public void startElement(String uri, String localName, String qName,
 			Attributes attributes) throws SAXException {
 
-		if (qName.equals("note")) {
+		if (qName.equals(searchTag)) {
 			elementOn = true;
 		}
+		
 //		if (qName.equals("gml:coordinates")) {
 //			elementOn = true;
 //		}
