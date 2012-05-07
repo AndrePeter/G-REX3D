@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
+import com.andredittrich.surface3d.OGLLayer;
+
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView.Renderer;
 import android.opengl.Matrix;
@@ -37,6 +39,8 @@ public class HelloOpenGLES20Renderer implements Renderer {
 	private final float[]mTemporaryMatrix = new float[16];
     public int mWidth;
     public int mHeight;
+    private OGLLayer layer;
+    
     
 	
 	
@@ -70,7 +74,7 @@ public class HelloOpenGLES20Renderer implements Renderer {
 	public void onSurfaceCreated(GL10 unused, EGLConfig config) {
 	    
         // Set the background frame color
-        GLES20.glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
+        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         
         // initialize the triangle vertex array
         initShapes();
@@ -91,6 +95,8 @@ public class HelloOpenGLES20Renderer implements Renderer {
         // get handle to the vertex shader's vPosition member
         myPositionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition");
         Matrix.setIdentityM(mAccumulatedRotation, 0);
+        muMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
+        GLES20.glEnableVertexAttribArray(myPositionHandle);
     }
     
     public void onDrawFrame(GL10 unused) {
@@ -102,12 +108,18 @@ public class HelloOpenGLES20Renderer implements Renderer {
      // Add program to OpenGL environment
         GLES20.glUseProgram(mProgram);
 //        Log.d("anzahl", Integer.toString(tris.size()));
-        for (FloatBuffer triangleVB : tris) {
+//        for (FloatBuffer triangleVB : tris) {
 			// Prepare the triangle data
 			GLES20.glVertexAttribPointer(myPositionHandle, 3, GLES20.GL_FLOAT,
-					false, 12, triangleVB);
-			GLES20.glEnableVertexAttribArray(myPositionHandle);
+					false, 0, layer.getVertexBuffer());
+//			GLES20.glEnableVertexAttribArray(myPositionHandle);
 			
+//			gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
+
+//			gl.glVertexPointer(3, GL10.GL_FLOAT, 0, layer.getVertexBuffer());
+
+			layer.getVertexBuffer().position(0);
+
 			
 			// Create a rotation for the triangle
 //	        long time = SystemClock.uptimeMillis() % 4000L;
@@ -147,8 +159,17 @@ public class HelloOpenGLES20Renderer implements Renderer {
 			//Matrix.multiplyMM(mMVPMatrix, 0, mProjMatrix, 0, mVMatrix, 0);
 	        GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, mMVPMatrix, 0);
 			// Draw the triangle
-			GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
-		}
+	        
+	        /*
+			 * do not draw triangles if the object should not be filled.
+			 * then only draw the vertices.
+			 */
+	        GLES20.glDrawElements(GLES20.GL_TRIANGLES, layer.getIndexBuffer().capacity(),
+			GLES20.GL_UNSIGNED_SHORT, layer.getIndexBuffer());
+			
+	        
+//			GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 6);
+//		}
     }
     
     public void onSurfaceChanged(GL10 unused, int width, int height) {
@@ -163,11 +184,12 @@ public class HelloOpenGLES20Renderer implements Renderer {
         // this projection matrix is applied to object coodinates
         // in the onDrawFrame() method
         Matrix.frustumM(mProjMatrix, 0, -ratio, ratio, -1, 1, 1f, 30);
-        muMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
+        
         Matrix.setLookAtM(mVMatrix, 0, 0, 0, -5f, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
     }
     
     private void initShapes(){
+    	layer = GREX3DActivity.tsobj;
         
     	FloatBuffer triangleVB;
     	

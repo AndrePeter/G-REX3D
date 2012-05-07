@@ -57,7 +57,10 @@ public class XMLHandler extends DefaultHandler {
 		if (elementOn) {
 			elementValue = new String(ch, start, length);
 			elementOn = false;
-			data.add(elementValue);
+			if (elementValue != null) {
+				data.add(elementValue);
+			}
+			
 		}
 	}
 }

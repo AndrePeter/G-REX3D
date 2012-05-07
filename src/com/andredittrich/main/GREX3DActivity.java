@@ -1,7 +1,16 @@
 package com.andredittrich.main;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
+import java.util.LinkedList;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -12,97 +21,64 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
+import com.andredittrich.dataresource.DataOnSDSelection;
+import com.andredittrich.dataresource.R;
+import com.andredittrich.dataresource.WFSSelectionActivity;
+import com.andredittrich.surface3d.GOCADConnector;
+import com.andredittrich.surface3d.GOCADConnector.TSFormatException;
+import com.andredittrich.surface3d.GOCADConnector.TSObject;
+import com.andredittrich.surface3d.OGLLayer;
 import com.andredittrich.xml.XMLHandler;
 
 public class GREX3DActivity extends Activity {
 
 	private HelloOpenGLES20SurfaceView mGLView;
+	private GOCADConnector connect3D = new GOCADConnector();
+	public static OGLLayer tsobj;
 
-	
-	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-//		Document doc = null;
-//
-//		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-//		try {
-//			DocumentBuilder db = dbf.newDocumentBuilder();
-//			Log.d("root", "1");
-//			doc = db.parse(new File(Environment.getExternalStorageDirectory()
-//					+ "/data/balingen.xml"));
-//			String tagname = "gml:coordinates";
-//			NodeList nodeList = doc.getElementsByTagName(tagname);
-//
-//			for (int i = 0; i < nodeList.getLength(); i++) {
-//				Node childNode = nodeList.item(i);
-//				// Do something with childNode...
-//				String name = childNode.getNodeName();
-//				Log.d("root", name);
-//			}
-//			Log.d("root", "2");
-//		} catch (ParserConfigurationException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (SAXException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		 }
-		//
-
-		// sax stuff
-//		try {
-//			SAXParserFactory spf = SAXParserFactory.newInstance();
-//			SAXParser sp = spf.newSAXParser();
-//
-//			XMLReader xr = sp.getXMLReader();
-//
-//			XMLHandler Handler = new XMLHandler();
-//			xr.setContentHandler(Handler);
-//
-//			Log.d("root", "1");
-////			String xmlString="<?xml version=\"1.0\" encoding=\"UTF-8\"?><note>Testnotiz</note>";
-////			StringReader inStream = new StringReader(xmlString);
-////			InputSource inSource = new InputSource(inStream);
-////			
-////			xr.parse(inSource);
-//			xr.parse(new InputSource(new FileInputStream(Environment
-//					.getExternalStorageDirectory() + "/data/balingen.xml")));
-////			Log.d("wert", Integer.toString(Handler.data.size()));
-//			Log.d("length", Integer.toString(Handler.data.size()));
-////			Log.d("length", Handler.data.get(1));
-//			int i = 0;
-//			for (String tag : Handler.data) {
-//				i++;
-////				String[] leer = tag.split("\\s");
-////				Log.d("achtung", Integer.toString(leer.length));
-//				
-//				Log.d("wertvoll", i + " " + tag );
-////				Log.d("wert", leer[0] + " " + leer[1] + " " + leer[2]);
-//			}
-//			Log.d("root", "2");
-//
-//		} catch (ParserConfigurationException pce) {
-//			Log.e("SAX XML", "sax parse error", pce);
-//		} catch (SAXException se) {
-//			Log.e("SAX XML", "sax error", se);
-//		} catch (IOException ioe) {
-//			Log.e("SAX XML", "sax parse io error", ioe);
-//		}
-
+		String intentData = null;
+		
+		Bundle extras = getIntent().getExtras();
+		if (extras != null) {
+			intentData = extras.getString(getString(R.string.TSObject));
+		}
 		// Create a GLSurfaceView instance and set it
 		// as the ContentView for this Activity
+		try {
+			BufferedReader in = new BufferedReader(new FileReader(intentData));
+			
+			Log.d("datei", in.readLine());
+
+			tsobj = connect3D.readTSObject(in);
+			
+			Log.d("layername", tsobj.getName());
+			Log.d("color", Integer.toString(tsobj.getColor()));
+			/*
+			 * important: close the stream for every file
+			 */
+			in.close();
+			
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
 		mGLView = new HelloOpenGLES20SurfaceView(this);
-		
+
 		final DisplayMetrics displayMetrics = new DisplayMetrics();
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
@@ -128,4 +104,5 @@ public class GREX3DActivity extends Activity {
 		// this is a good place to re-allocate them.
 		mGLView.onResume();
 	}
+
 }

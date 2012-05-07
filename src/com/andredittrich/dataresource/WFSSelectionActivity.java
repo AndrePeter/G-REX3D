@@ -1,5 +1,17 @@
 package com.andredittrich.dataresource;
 
+import java.io.InputStream;
+import java.util.ArrayList;
+
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
@@ -7,6 +19,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -18,39 +31,46 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Toast;
 
 import com.andredittrich.database.SQLiteOnSD;
+import com.andredittrich.xml.XMLHandler;
 
 public class WFSSelectionActivity extends ListActivity implements
-		OnItemClickListener {
-	private SQLiteOnSD openHandler;
-	SimpleCursorAdapter mAdapter;
-	Button addWFS;
-	public static String CAP_URL = "Capabilities URL";
+OnItemClickListener {
+	
+	private static SQLiteOnSD openHandler;
+	private static SimpleCursorAdapter mAdapter;
+	private Button addWFS;
+	public static final String FEATURE_TYPES = "Feature Types";
+	public static final String SEARCH_TAG = "Name";
 	private static final int DIALOG_ADDWFS = 1;
+	private static String chosenURL;
+	public static String baseURL;
+	public static String[] serviceResponse;
+//	public final WFSSelectionActivity parent = this;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		registerForContextMenu(getListView());
 		openHandler = new SQLiteOnSD(this);
 		// openHandler.dropTable();
 		// for (int i = 0; i<15;i++) {
 		// openHandler.insert("Test" + i, "www.test.de", 1);
 		// }
-//		openHandler.insert("WFSDB4GeO",
-//				 "http://192.168.0.100:8182/MyProject/wfs?");
+		// openHandler.insert("WFSDB4GeO",
+		// "http://192.168.0.100:8182/MyProject/wfs?");
 		Cursor data = openHandler.query();
 
-		 
 		// TODO: custom Adapter Class !!!
 		mAdapter = new SimpleCursorAdapter(this,
 				android.R.layout.simple_list_item_2, data, new String[] {
-						SQLiteOnSD.WFS_NAME, SQLiteOnSD.WFS_URL }, new int[] {
-						android.R.id.text1, android.R.id.text2 }, 0);
+				SQLiteOnSD.WFS_NAME, SQLiteOnSD.WFS_URL }, new int[] {
+				android.R.id.text1, android.R.id.text2 }, 0);
 		setListAdapter(mAdapter);
 
 		setContentView(R.layout.listviewwithbutton);
@@ -62,6 +82,7 @@ public class WFSSelectionActivity extends ListActivity implements
 			}
 		});
 		registerForContextMenu(getListView());
+
 	}
 
 	@Override
@@ -76,21 +97,14 @@ public class WFSSelectionActivity extends ListActivity implements
 		Object o = getListAdapter().getItem(position);
 		Cursor w = (Cursor) o;
 		int columnIndex = w.getColumnIndex(SQLiteOnSD.WFS_URL);
-		String url = w.getString(columnIndex)
-				+ "REQUEST=GetCapabilities&VERSION=1.0.0";
-		if (!url.startsWith("http://")) {
-			url = "http://" + url;
+		baseURL = w.getString(columnIndex);
+		if (!baseURL.startsWith(getString(R.string.HTTP))) {
+			baseURL = getString(R.string.HTTP) + baseURL;
 		}
-		Log.d("url", url);
+		chosenURL =	baseURL + getString(R.string.Capabilities) + "&" + getString(R.string.Version110);
 		
-		Intent intent = new Intent(WFSSelectionActivity.this, FeatureTypeSelectionActivity.class);
-		intent.putExtra(CAP_URL, url);
-		startActivity(intent);
-		
-//		Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-//		intent.setData(intent.getData());
-//		Log.d("datastring",intent.getDataString());
-//		startActivity(intent);
+		Log.d("url", chosenURL);
+		readWebpage(getListView());
 	}
 
 	protected Dialog onCreateDialog(int id) {
@@ -110,29 +124,28 @@ public class WFSSelectionActivity extends ListActivity implements
 			builder.setPositiveButton(R.string.AddWFSButtonText,
 					new DialogInterface.OnClickListener() {
 
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.dismiss();
-							openHandler.insert(wfsName.getText().toString(),
-									wfsBaseURL.getText().toString());
-							mAdapter.getCursor().requery();
-							mAdapter.notifyDataSetChanged();
-						}
-					});
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.dismiss();
+					openHandler.insert(wfsName.getText().toString(),
+							wfsBaseURL.getText().toString());
+					updateList();
+				}
+			});
 
 			builder.setNegativeButton(R.string.cancelItem,
 					new DialogInterface.OnClickListener() {
 
-						public void onClick(DialogInterface dialog, int which) {
-							dialog.cancel();
-						}
-					});
+				public void onClick(DialogInterface dialog, int which) {
+					dialog.cancel();
+				}
+			});
 
 			return builder.create();
 		default:
 			return super.onCreateDialog(id);
 		}
 	}
-	
+
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
@@ -148,18 +161,75 @@ public class WFSSelectionActivity extends ListActivity implements
 				.getMenuInfo();
 		switch (item.getItemId()) {
 		case R.id.WFS_menu_delete:
-			openHandler.delete(info.id);
-			mAdapter.getCursor().requery();
-			mAdapter.notifyDataSetChanged();
+			deleteRow(info.id);
+			updateList();
 			return true;
 		default:
 			return super.onContextItemSelected(item);
 		}
 	}
-	
+
+	private void deleteRow(long id) {
+		if (openHandler.delete(id) != 0) {
+			Toast.makeText(this, "deleted", Toast.LENGTH_LONG).show();
+		} else {
+			Toast.makeText(this, "failed", Toast.LENGTH_LONG).show();
+		}
+	}
+
 	private void updateList() {
 		// zunächst Cursor, dann Liste aktualisieren
 		mAdapter.getCursor().requery();
 		mAdapter.notifyDataSetChanged();
 	}
+
+	private class DownloadWebPageTask extends
+	AsyncTask<String, Void, ArrayList<String>> {
+		@Override
+		protected ArrayList<String> doInBackground(String... urls) {
+			ArrayList<String> response = null;
+			for (String url : urls) {
+				DefaultHttpClient client = new DefaultHttpClient();
+				HttpGet httpGet = new HttpGet(url);
+				try {
+					SAXParserFactory spf = SAXParserFactory.newInstance();
+					SAXParser sp = spf.newSAXParser();
+					//
+					XMLReader xr = sp.getXMLReader();
+					//
+					XMLHandler Handler = new XMLHandler(SEARCH_TAG);
+					xr.setContentHandler(Handler);
+					HttpResponse execute = client.execute(httpGet);
+					InputStream content = execute.getEntity().getContent();
+					InputSource inSource = new InputSource(content);
+					xr.parse(inSource);
+					response = Handler.data;
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			return response;
+		}
+
+		@Override
+		protected void onPostExecute(ArrayList<String> result) {
+			serviceResponse = new String[result.size()];
+			for (int i = 0; i < result.size(); i++) {
+				serviceResponse[i] = result.get(i);
+			}
+
+			Log.d("length", Integer.toString(serviceResponse.length));
+			Intent intent = new Intent(WFSSelectionActivity.this,
+					FeatureTypeSelectionActivity.class);
+			intent.putExtra(FEATURE_TYPES, serviceResponse);
+			startActivity(intent);
+		}
+	}
+
+	public void readWebpage(View view) {
+		DownloadWebPageTask task = new DownloadWebPageTask();
+		task.execute(new String[] { chosenURL });
+	}
+
 }

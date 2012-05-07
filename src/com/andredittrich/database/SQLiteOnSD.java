@@ -111,12 +111,14 @@ public class SQLiteOnSD extends SQLiteOpenHelper {
 //		Log.d(TAG, "update(): id=" + id + " -> " + numUpdated);
 	}
 
-	public void delete(long id) {
+	public int delete(long id) {
 		// ggf. Datenbank öffnen
 		SQLiteDatabase db = getWritableDatabase();
 		int numDeleted = db.delete(WFS_TABLE_NAME, _ID + " = ?",
 				new String[] { Long.toString(id) });
+		Log.d("anzahl", Integer.toString(numDeleted));
 //		Log.d(TAG, "delete(): id=" + id + " -> " + numDeleted);
+		return numDeleted;
 	}
 
 }
