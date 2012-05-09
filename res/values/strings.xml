@@ -39,5 +39,13 @@
     <string name="FileSize">FILESIZE</string>
     <string name="TSObject">TSOBJECT</string>
     <string name="HTTP">http://</string>
+    <string name="DIALOG_ADDWFS">DIALOG_ADDWFS</string>
+    <string name="FEATURE_TYPE_TAG">Name</string>
+    <string name="DELETED">deleted</string>
+    <string name="FAILED">failed</string>
+    <string name="KVP_Separator">&amp;</string>
+    <string name="DataFolder">data</string>
+    <string name="NoData">no suitable data</string>
+    <string name="Extensions">ts,xml</string>
     
 </resources>

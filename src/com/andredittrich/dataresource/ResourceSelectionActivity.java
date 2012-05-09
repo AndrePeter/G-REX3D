@@ -1,37 +1,28 @@
 package com.andredittrich.dataresource;
 
-import java.io.File;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-
-import com.andredittrich.dataresource.DataOnSDSelection.FileListFilter;
-import com.andredittrich.main.GREX3DActivity;
-
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 
 public class ResourceSelectionActivity extends Activity {
 
+	/**
+	 * Button to choose the SD Card of the device to search for files
+	 */
 	private Button sdcard;
+	/**
+	 * Button to choose a web feature service to provide data
+	 */
 	private Button wfs;
-	public static final String rootDirectory = Environment
-			.getExternalStorageDirectory().getAbsolutePath() + "/data";
+	/**
+	 * String to hold the path of the data folder on the SD Card
+	 */
+	public static final String ROOT_DIRECTORY = Environment
+			.getExternalStorageDirectory().getAbsolutePath();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -44,7 +35,6 @@ public class ResourceSelectionActivity extends Activity {
 			public void onClick(View v) {
 				Intent intent = new Intent(ResourceSelectionActivity.this,
 						DataOnSDSelection.class);
-
 				startActivity(intent);
 			}
 		});

@@ -1,41 +1,18 @@
 package com.andredittrich.main;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
-import java.util.LinkedList;
-
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLReader;
 
 import android.app.Activity;
-import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 
-import com.andredittrich.dataresource.DataOnSDSelection;
 import com.andredittrich.dataresource.R;
-import com.andredittrich.dataresource.WFSSelectionActivity;
 import com.andredittrich.surface3d.GOCADConnector;
-import com.andredittrich.surface3d.GOCADConnector.TSFormatException;
-import com.andredittrich.surface3d.GOCADConnector.TSObject;
 import com.andredittrich.surface3d.OGLLayer;
-import com.andredittrich.xml.XMLHandler;
 
 public class GREX3DActivity extends Activity {
 
