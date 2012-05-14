@@ -17,6 +17,7 @@ package com.andredittrich.surface3d;
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+import java.nio.Buffer;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
 
@@ -48,6 +49,21 @@ public interface OGLLayer {
 	public ShortBuffer getIndexBuffer() ;
 
 	/**
+	 * returns line indices as an ShortBuffer in order of Index_1_of_Line_1,
+	 * Index_2_of_Line_1, Index_1_of_Line_2, ... , Index_2_of_Line_n
+	 * 
+	 * @return
+	 */
+	public ShortBuffer getLineBuffer();
+	
+	/**
+	 * returns the normals as an FloatBuffer in order of ...
+	 * 
+	 * @return
+	 */
+	public FloatBuffer getNormalBuffer();
+	
+	/**
 	 * returns the name of the OGLLayer. If no name has been read a default
 	 * name according to a number.
 	 * 
@@ -76,4 +92,5 @@ public interface OGLLayer {
 
 	public void setSelected(boolean selected);
 
+	
 }

@@ -27,7 +27,11 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.ShortBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.Vector;
 
 
 import android.graphics.Color;
@@ -257,6 +261,7 @@ public class GOCADConnector {
 									"Vertices not well formated: " + actline);
 						}
 					}
+					
 				} else if (body && actline.startsWith("TRGL")) {
 					/*
 					 * read in triangle-indices. every triangle belongs to three
@@ -269,9 +274,17 @@ public class GOCADConnector {
 							 * if triangle found put the indices into the
 							 * TSObjects List for indices
 							 */
+							tsObject.ln.add(Short.valueOf(parsed[1]));
+							tsObject.ln.add(Short.valueOf(parsed[2]));
+							tsObject.ln.add(Short.valueOf(parsed[1]));
+							tsObject.ln.add(Short.valueOf(parsed[3]));
+							tsObject.ln.add(Short.valueOf(parsed[2]));
+							tsObject.ln.add(Short.valueOf(parsed[3]));
+							
 							tsObject.trgl.add(Short.valueOf(parsed[1]));
 							tsObject.trgl.add(Short.valueOf(parsed[2]));
 							tsObject.trgl.add(Short.valueOf(parsed[3]));
+													
 						} catch (NumberFormatException ex) {
 							Log.w(TAG, "Indices not well formated: " + actline,
 									ex);
@@ -295,6 +308,16 @@ public class GOCADConnector {
 				actline = in.readLine();
 			}
 		}
+		
+//		for (int g = 0; g > tsObject.trgl.size(); g+=3) {
+//			Short v1index = tsObject.trgl.get(g);
+////			Short v2index = tsObject.trgl.get(g+1);
+////			Short v3index = tsObject.trgl.get(g+2);
+//			
+//			Float v1 = tsObject.vrtx.get((int) v1index);
+//			Log.w("floatwert", Float.toString(v1));
+//			
+//		}
 
 		if (!end) {
 			/*
@@ -344,13 +367,19 @@ public class GOCADConnector {
 		private LinkedList<Float> vrtx = new LinkedList<Float>();
 
 		private LinkedList<Short> trgl = new LinkedList<Short>();
+		
+		private LinkedList<Short> ln = new LinkedList<Short>();
+		
+		private LinkedList<Float> nrml = new LinkedList<Float>();
 		/*
 		 * buffers for opengl|es output
 		 */
 		private ByteBuffer bbb;
 
 		private FloatBuffer vertex;
+		private FloatBuffer normal;
 		private ShortBuffer triangle;
+		private ShortBuffer line;
 		public String name = null;
 
 		/*
@@ -398,7 +427,21 @@ public class GOCADConnector {
 		public ShortBuffer getIndexBuffer() {
 			return triangle;
 		}
+		
+		/**
+		 * returns line indices as an ShortBuffer in order of Index_1_of_Line_1,
+		 * Index_2_of_Line_1, Index_1_of_Line_2, ... , Index_2_of_Line_n
+		 * 
+		 * @return
+		 */
+		public ShortBuffer getLineBuffer() {
+			return line;
+		}
 
+		public FloatBuffer getNormalBuffer() {
+			return normal;
+		}
+		
 		/**
 		 * returns the name of the OGLLayer. If no name has been read a default
 		 * name according to a number.
@@ -505,6 +548,34 @@ public class GOCADConnector {
 				/* in opengl|es indices always start with 0 */
 				triangle.put((short) (actual - 1));
 			}
+			
+			/*
+			 * Fill the ShortBuffer with LINE indices. Assumption is that the first
+			 * read vertex has index 1 and so on.
+			 */
+			bbb = ByteBuffer.allocateDirect(2 * ln.size());
+			bbb.order(ByteOrder.nativeOrder());
+			line = bbb.asShortBuffer();
+			line.position(0);
+			for (Short actual : ln) {
+				/* in opengl|es indices always start with 0 */
+				line.put((short) (actual - 1));
+			}
+			
+//			/*
+//			 * Fill the FloattBuffer with normals. Assumption is that the first
+//			 * read vertex has index 1 and so on.
+//			 */
+//			bbb = ByteBuffer.allocateDirect(2 * trgl.size());
+//			bbb.order(ByteOrder.nativeOrder());
+//			triangle = bbb.asShortBuffer();
+//			triangle.position(0);
+//			for (Short actual : trgl) {
+//				/* in opengl|es indices always start with 0 */
+//				triangle.put((short) (actual - 1));
+//			}
+			
+			
 
 			/*
 			 * reference to the first entry otherwise it cannot be displayed in
@@ -512,12 +583,89 @@ public class GOCADConnector {
 			 */
 			vertex.position(0);
 			triangle.position(0);
+			line.position(0);
+		
 
+			Log.w("TEST", "TEST");
+			Log.w("trigroesse", Integer.toString(tsObject.trgl.size()));
+			
+			for (int d = 0; d < tsObject.vrtx.size(); d++) {
+				nrml.add((float) 1.0);
+			}
+			
+			for (int g = 0; g < tsObject.trgl.size(); g+=3) {
+				Short v1index = tsObject.trgl.get(g);
+				Short v2index = tsObject.trgl.get(g+1);
+				Short v3index = tsObject.trgl.get(g+2);
+				Log.w("v1index", Integer.toString(v1index));
+//				Short v2index = tsObject.trgl.get(g+1);
+//				Short v3index = tsObject.trgl.get(g+2);
+				
+				Float x1 = tsObject.vrtx.get(((int) v1index) * 3 - 3);
+				Float y1 = tsObject.vrtx.get(((int) v1index) * 3 - 2);
+				Float z1 = tsObject.vrtx.get(((int) v1index) * 3 - 1);
+				Float x2 = tsObject.vrtx.get(((int) v2index) * 3 - 3);
+				Float y2 = tsObject.vrtx.get(((int) v2index) * 3 - 2);
+				Float z2 = tsObject.vrtx.get(((int) v2index) * 3 - 1);
+				Float x3 = tsObject.vrtx.get(((int) v3index) * 3 - 3);
+				Float y3 = tsObject.vrtx.get(((int) v3index) * 3 - 2);
+				Float z3 = tsObject.vrtx.get(((int) v3index) * 3 - 1);
+				
+				Float[] normale = new Float[4];
+				
+				Float[] u = new Float[] {x2-x1,y2-y1,z2-z1};
+				Float[] v = new Float[] {x3-x1,y3-y1,z3-z1};
+				
+				normale[0] = u[1]*v[2]-u[2]*v[1];
+				normale[1] = u[2]*v[0]-u[0]*v[2];
+				normale[2] = u[0]*v[1]-u[1]*v[0];
+				
+				nrml.set(((int) v1index) * 3 - 3, normale[0]);
+				nrml.set(((int) v1index) * 3 - 2, normale[1]);
+				nrml.set(((int) v1index) * 3 - 1, normale[2]);
+				
+				nrml.set(((int) v2index) * 3 - 3, normale[0]);
+				nrml.set(((int) v2index) * 3 - 2, normale[1]);
+				nrml.set(((int) v2index) * 3 - 1, normale[2]);
+				
+				nrml.set(((int) v3index) * 3 - 3, normale[0]);
+				nrml.set(((int) v3index) * 3 - 2, normale[1]);
+				nrml.set(((int) v3index) * 3 - 1, normale[2]);		
+				
+				
+				Log.w("Koord", Float.toString(x1) +", " + Float.toString(y1) +", " +Float.toString(z1));
+				
+			}
+			
+			bbb = ByteBuffer.allocateDirect(4 * vrtx.size());
+			bbb.order(ByteOrder.nativeOrder());
+			normal = bbb.asFloatBuffer();
+			
+			
+			int q = 0;
+			normal.position(0);
+			for (Float actual : nrml) {
+				switch (q) {
+				case 0:
+					normal.put(actual - correctx);
+					break;
+				case 1:
+					normal.put(actual - correcty);
+					break;
+				case 2:
+					normal.put(actual - correctz);
+					break;
+				}
+				i = ++i % 3;
+			}
+			normal.position(0);
 			/*
 			 * set Lists null to free memory
 			 */
 			vrtx = null;
 			trgl = null;
+			ln = null;
+			nrml = null;
 		}
 	}
 }

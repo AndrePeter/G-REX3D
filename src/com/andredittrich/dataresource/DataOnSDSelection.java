@@ -56,9 +56,9 @@ public class DataOnSDSelection extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		dataPath = ResourceSelectionActivity.ROOT_DIRECTORY;// + File.separator
-		// +
-		// getString(R.string.DataFolder);
+		dataPath = ResourceSelectionActivity.ROOT_DIRECTORY + File.separator
+		 +
+		 getString(R.string.DataFolder);
 		searchTSFiles();
 
 		prepareData4List();
