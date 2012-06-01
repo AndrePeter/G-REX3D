@@ -97,11 +97,15 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 	                float realx = (1.21f)*dx/(mRenderer.mHeight/2);
 	                float realy = (1.21f)*dy/(mRenderer.mHeight/2);
 	                
-	                Log.d("realdy",Float.toString(realy));
-	                Log.d("realdx",Float.toString(realx));
+	                Log.d("realdy", Float.toString(realy));
+	                Log.d("realdx", Float.toString(realx));
 	                
 //	                mRenderer.mdX += realx;
 //	                mRenderer.mdY += realy;
+	                mRenderer.mdX += dx/mDensity/2f;
+	                mRenderer.mdY += dy/mDensity/2f;
+	                
+	                
 	                ysum += dy;
 	                yrealsum += realy;
 	                Log.d("ysum",Float.toString(ysum));

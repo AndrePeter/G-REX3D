@@ -30,12 +30,13 @@ public class GREX3DActivity extends Activity {
 		if (extras != null) {
 			intentData = extras.getString(getString(R.string.TSObject));
 		}
+		Log.d("datei", intentData);
 		// Create a GLSurfaceView instance and set it
 		// as the ContentView for this Activity
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(intentData));
 			
-			Log.d("datei", in.readLine());
+			Log.d("zeile", in.readLine());
 
 			tsobj = connect3D.readTSObject(in);
 			
