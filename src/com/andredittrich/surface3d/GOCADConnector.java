@@ -18,20 +18,15 @@ package com.andredittrich.surface3d;
  */
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.Vector;
+
+import com.andredittrich.main.HelloOpenGLES20Renderer;
 
 import android.graphics.Color;
 import android.util.Log;
@@ -242,6 +237,10 @@ public class GOCADConnector {
 								maxZ = tmpz;
 							else if (tmpz < minZ)
 								minZ = tmpz;
+							
+							
+							
+							
 							/*
 							 * and add the coordinates to the lists in the
 							 * OGLLayer
@@ -271,16 +270,16 @@ public class GOCADConnector {
 							 * if triangle found put the indices into the
 							 * TSObjects List for indices
 							 */
-							tsObject.ln.add(Short.valueOf(parsed[1]));
-							tsObject.ln.add(Short.valueOf(parsed[2]));
-							tsObject.ln.add(Short.valueOf(parsed[1]));
-							tsObject.ln.add(Short.valueOf(parsed[3]));
-							tsObject.ln.add(Short.valueOf(parsed[2]));
-							tsObject.ln.add(Short.valueOf(parsed[3]));
+							tsObject.ln.add(Integer.valueOf(parsed[1]));
+							tsObject.ln.add(Integer.valueOf(parsed[2]));
+							tsObject.ln.add(Integer.valueOf(parsed[1]));
+							tsObject.ln.add(Integer.valueOf(parsed[3]));
+							tsObject.ln.add(Integer.valueOf(parsed[2]));
+							tsObject.ln.add(Integer.valueOf(parsed[3]));
 
-							tsObject.trgl.add(Short.valueOf(parsed[1]));
-							tsObject.trgl.add(Short.valueOf(parsed[2]));
-							tsObject.trgl.add(Short.valueOf(parsed[3]));
+							tsObject.trgl.add(Integer.valueOf(parsed[1]));
+							tsObject.trgl.add(Integer.valueOf(parsed[2]));
+							tsObject.trgl.add(Integer.valueOf(parsed[3]));
 
 						} catch (NumberFormatException ex) {
 							Log.w(TAG, "Indices not well formated: " + actline,
@@ -306,23 +305,17 @@ public class GOCADConnector {
 			}
 		}
 
-		// for (int g = 0; g > tsObject.trgl.size(); g+=3) {
-		// Short v1index = tsObject.trgl.get(g);
-		// // Short v2index = tsObject.trgl.get(g+1);
-		// // Short v3index = tsObject.trgl.get(g+2);
-		//
-		// Float v1 = tsObject.vrtx.get((int) v1index);
-		// Log.w("floatwert", Float.toString(v1));
-		//
+		// if (!end) {
+		// /*
+		// * if no end has been reached, the file is inconsistent
+		// */
+		// throw new TSFormatException(
+		// "File read complete, but no 'END' reached");
 		// }
-
-		if (!end) {
-			/*
-			 * if no end has been reached, the file is inconsistent
-			 */
-			throw new TSFormatException(
-					"File read complete, but no 'END' reached");
-		}
+		
+		HelloOpenGLES20Renderer.viewHeightx = (maxX-minX);
+		HelloOpenGLES20Renderer.viewHeighty = (maxY-minY);
+		HelloOpenGLES20Renderer.viewHeightz = (maxZ-minZ);
 
 		return correctAll();
 	}
@@ -363,9 +356,9 @@ public class GOCADConnector {
 		 */
 		private LinkedList<Float> vrtx = new LinkedList<Float>();
 
-		private LinkedList<Short> trgl = new LinkedList<Short>();
+		private LinkedList<Integer> trgl = new LinkedList<Integer>();
 
-		private LinkedList<Short> ln = new LinkedList<Short>();
+		private LinkedList<Integer> ln = new LinkedList<Integer>();
 
 		private LinkedList<Float> nrml = new LinkedList<Float>();
 		/*
@@ -375,8 +368,8 @@ public class GOCADConnector {
 
 		private FloatBuffer vertex;
 		private FloatBuffer normal;
-		private ShortBuffer triangle;
-		private ShortBuffer line;
+		private IntBuffer triangle;
+		private IntBuffer line;
 		public String name = null;
 
 		/*
@@ -390,6 +383,8 @@ public class GOCADConnector {
 		 * the color in android-format
 		 */
 		private int color = 0;
+
+		int myProgress;
 
 		private TSObject() {
 			default_nr++;
@@ -422,7 +417,7 @@ public class GOCADConnector {
 		 * 
 		 * @return
 		 */
-		public ShortBuffer getIndexBuffer() {
+		public IntBuffer getIndexBuffer() {
 			return triangle;
 		}
 
@@ -432,7 +427,7 @@ public class GOCADConnector {
 		 * 
 		 * @return
 		 */
-		public ShortBuffer getLineBuffer() {
+		public IntBuffer getLineBuffer() {
 			return line;
 		}
 
@@ -490,6 +485,15 @@ public class GOCADConnector {
 			return name;
 		}
 
+		// protected void onProgressUpdate(Integer... values) {
+		// // TODO Auto-generated method stub
+		// FeatureTypeSelectionActivity.progressBar.setProgress(values[0]);
+		// }
+		// protected void onPreExecute() {
+		// // TODO Auto-generated method stub
+		// myProgress = 0;
+		// }
+
 		/**
 		 * Translates the vertices into the origin by using correction
 		 * subtrahends because opengl is not able to display great
@@ -538,42 +542,32 @@ public class GOCADConnector {
 			 * Fill the ShortBuffer with indices. Assumption is that the first
 			 * read vertex has index 1 and so on.
 			 */
-			bbb = ByteBuffer.allocateDirect(2 * trgl.size());
+			
+			Log.d("laengeBUFFER",Integer.toString(4 * trgl.size()));
+			bbb = ByteBuffer.allocateDirect(4 * trgl.size());
 			bbb.order(ByteOrder.nativeOrder());
-			triangle = bbb.asShortBuffer();
+			triangle = bbb.asIntBuffer();
 			triangle.position(0);
-			for (Short actual : trgl) {
+			for (Integer actual : trgl) {
 				/* in opengl|es indices always start with 0 */
-				triangle.put((short) (actual - 1));
+				triangle.put((Integer) (actual - 1));
 			}
 
 			/*
 			 * Fill the ShortBuffer with LINE indices. Assumption is that the
 			 * first read vertex has index 1 and so on.
 			 */
-			bbb = ByteBuffer.allocateDirect(2 * ln.size());
+			bbb = ByteBuffer.allocateDirect(4 * ln.size());
 			bbb.order(ByteOrder.nativeOrder());
-			line = bbb.asShortBuffer();
+			line = bbb.asIntBuffer();
 			line.position(0);
-			for (Short actual : ln) {
+			for (Integer actual : ln) {
 				/* in opengl|es indices always start with 0 */
-				line.put((short) (actual - 1));
+				line.put((Integer) (actual - 1));
 			}
 
-			// /*
-			// * Fill the FloattBuffer with normals. Assumption is that the
-			// first
-			// * read vertex has index 1 and so on.
-			// */
-			// bbb = ByteBuffer.allocateDirect(2 * trgl.size());
-			// bbb.order(ByteOrder.nativeOrder());
-			// triangle = bbb.asShortBuffer();
-			// triangle.position(0);
-			// for (Short actual : trgl) {
-			// /* in opengl|es indices always start with 0 */
-			// triangle.put((short) (actual - 1));
-			// }
-
+			ln = null;
+			
 			/*
 			 * reference to the first entry otherwise it cannot be displayed in
 			 * opengl|es
@@ -582,79 +576,22 @@ public class GOCADConnector {
 			triangle.position(0);
 			line.position(0);
 
-			Log.w("TEST", "TEST");
-			Log.w("trigroesse", Integer.toString(tsObject.trgl.size()));
-
 			for (int d = 0; d < tsObject.vrtx.size(); d++) {
 				nrml.add((float) 1.0);
 			}
 
+			Float[] currentNormal;
+
 			for (int g = 0; g < tsObject.trgl.size(); g += 3) {
-				Short v1index = tsObject.trgl.get(g);
-				Short v2index = tsObject.trgl.get(g + 1);
-				Short v3index = tsObject.trgl.get(g + 2);
-//				Log.w("v1index", Integer.toString(v1index));
-				// Short v2index = tsObject.trgl.get(g+1);
-				// Short v3index = tsObject.trgl.get(g+2);
+				Integer v1index = tsObject.trgl.get(g);
+				Integer v2index = tsObject.trgl.get(g + 1);
+				Integer v3index = tsObject.trgl.get(g + 2);
 
-				Float x1 = tsObject.vrtx.get(((int) v1index) * 3 - 3);
-				Float y1 = tsObject.vrtx.get(((int) v1index) * 3 - 2);
-				Float z1 = tsObject.vrtx.get(((int) v1index) * 3 - 1);
-				Float x2 = tsObject.vrtx.get(((int) v2index) * 3 - 3);
-				Float y2 = tsObject.vrtx.get(((int) v2index) * 3 - 2);
-				Float z2 = tsObject.vrtx.get(((int) v2index) * 3 - 1);
-				Float x3 = tsObject.vrtx.get(((int) v3index) * 3 - 3);
-				Float y3 = tsObject.vrtx.get(((int) v3index) * 3 - 2);
-				Float z3 = tsObject.vrtx.get(((int) v3index) * 3 - 1);
+				currentNormal = calculateNormal(v1index, v2index, v3index);
 
-				Float[] normale = new Float[4];
-
-				Float[] u = new Float[] { x2 - x1, y2 - y1, z2 - z1 };
-				Float[] v = new Float[] { x3 - x1, y3 - y1, z3 - z1 };
+				setNormal(currentNormal, v1index, v2index, v3index);
 				
-//				Log.w("u und v", u.toString() + ", " + v.toString());
-
-				normale[0] = u[1] * v[2] - u[2] * v[1];
-				normale[1] = u[2] * v[0] - u[0] * v[2];
-				normale[2] = u[0] * v[1] - u[1] * v[0];
-
-				Float length = (float) Math.sqrt(Math.pow(normale[0],2) + Math.pow(normale[1],2) + Math.pow(normale[2],2));
-				
-				nrml.set(((int) v1index) * 3 - 3, normale[0]/length);
-				nrml.set(((int) v1index) * 3 - 2, normale[1]/length);
-				nrml.set(((int) v1index) * 3 - 1, normale[2]/length);
-
-				nrml.set(((int) v2index) * 3 - 3, normale[0]/length);
-				nrml.set(((int) v2index) * 3 - 2, normale[1]/length);
-				nrml.set(((int) v2index) * 3 - 1, normale[2]/length);
-
-				nrml.set(((int) v3index) * 3 - 3, normale[0]/length);
-				nrml.set(((int) v3index) * 3 - 2, normale[1]/length);
-				nrml.set(((int) v3index) * 3 - 1, normale[2]/length);
-
-//				Log.w("Koord", Float.toString(x1) + ", " + Float.toString(y1)
-//						+ ", " + Float.toString(z1));
-//				Log.w("Koord", Float.toString(x2) + ", " + Float.toString(y2)
-//						+ ", " + Float.toString(z2));
-//				Log.w("Koord", Float.toString(x3) + ", " + Float.toString(y3)
-//						+ ", " + Float.toString(z3));
-//				Log.w("Normal",
-//								Float.toString(normale[0])
-//										+ ", "
-//										+ Float.toString(normale[1])
-//										+ ", "
-//										+ Float.toString(normale[2]));
-//						
-//				Log.w("Normal",
-//						Float.toString(nrml.get(((int) v1index) * 3 - 3))
-//								+ ", "
-//								+ Float.toString(nrml
-//										.get(((int) v1index) * 3 - 2))
-//								+ ", "
-//								+ Float.toString(nrml
-//										.get(((int) v1index) * 3 - 1)));
-
-			}
+			}			
 
 			bbb = ByteBuffer.allocateDirect(4 * vrtx.size());
 			bbb.order(ByteOrder.nativeOrder());
@@ -677,19 +614,72 @@ public class GOCADConnector {
 				q = ++q % 3;
 			}
 			normal.position(0);
-			
-//			for (int h = 0; h < normal.capacity(); h++ ) {
-//				Log.w("n", Float.toString(normal.get(h)));
-//				
-//			}
-//			normal.position(0);
+
 			/*
 			 * set Lists null to free memory
 			 */
 			vrtx = null;
 			trgl = null;
-			ln = null;
 			nrml = null;
+		}
+
+		private void setNormal(Float[] normale, Integer v1index, Integer v2index,
+				Integer v3index) {
+
+			Float length = (float) Math.sqrt(Math.pow(normale[0], 2)
+					+ Math.pow(normale[1], 2) + Math.pow(normale[2], 2));
+
+			averageNormals(v1index, normale, length);
+			averageNormals(v2index, normale, length);
+			averageNormals(v3index, normale, length);
+
+		}
+
+		private void averageNormals(Integer index, Float[] normale, Float length) {
+
+			if (nrml.get(((int) index) * 3 - 3) == 1.0
+					&& nrml.get(((int) index) * 3 - 2) == 1.0
+					&& nrml.get(((int) index) * 3 - 1) == 1.0) {
+				nrml.set(((int) index) * 3 - 3, normale[0] / length);
+				nrml.set(((int) index) * 3 - 2, normale[1] / length);
+				nrml.set(((int) index) * 3 - 1, normale[2] / length);
+			} else {
+				nrml.set(
+						((int) index) * 3 - 3,
+						(nrml.get(((int) index) * 3 - 3) + normale[0] / length) / 2);
+				nrml.set(
+						((int) index) * 3 - 2,
+						(nrml.get(((int) index) * 3 - 2) + normale[1] / length) / 2);
+				nrml.set(
+						((int) index) * 3 - 1,
+						(nrml.get(((int) index) * 3 - 1) + normale[2] / length) / 2);
+			}
+
+		}
+
+		private Float[] calculateNormal(Integer v1index, Integer v2index,
+				Integer v3index) {
+
+			Float x1 = tsObject.vrtx.get(((int) v1index) * 3 - 3);
+			Float y1 = tsObject.vrtx.get(((int) v1index) * 3 - 2);
+			Float z1 = tsObject.vrtx.get(((int) v1index) * 3 - 1);
+			Float x2 = tsObject.vrtx.get(((int) v2index) * 3 - 3);
+			Float y2 = tsObject.vrtx.get(((int) v2index) * 3 - 2);
+			Float z2 = tsObject.vrtx.get(((int) v2index) * 3 - 1);
+			Float x3 = tsObject.vrtx.get(((int) v3index) * 3 - 3);
+			Float y3 = tsObject.vrtx.get(((int) v3index) * 3 - 2);
+			Float z3 = tsObject.vrtx.get(((int) v3index) * 3 - 1);
+
+			Float[] currentNormal = new Float[4];
+
+			Float[] u = new Float[] { x2 - x1, y2 - y1, z2 - z1 };
+			Float[] v = new Float[] { x3 - x1, y3 - y1, z3 - z1 };
+
+			currentNormal[0] = u[1] * v[2] - u[2] * v[1];
+			currentNormal[1] = u[2] * v[0] - u[0] * v[2];
+			currentNormal[2] = u[0] * v[1] - u[1] * v[0];
+
+			return currentNormal;
 		}
 	}
 }

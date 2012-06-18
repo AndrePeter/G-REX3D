@@ -1,34 +1,28 @@
 package com.andredittrich.dataresource;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
-
-import com.andredittrich.database.SQLiteOnSD;
-import com.andredittrich.xml.XMLHandler;
 
 import android.app.ListActivity;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.SystemClock;
 import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
+
+import com.andredittrich.main.GREX3DActivity;
 
 public class FeatureTypeSelectionActivity extends ListActivity {
 
@@ -42,11 +36,10 @@ public class FeatureTypeSelectionActivity extends ListActivity {
 	private static final String ROW_ID_2 = "TITLE";
 	private static final String SEARCH_TAG_GETFEATURE = "gml:posList";
 	private static final String SEARCH_TAG_DESCRIBE = "element";
-	public static String[] serviceResponse;
+	public static String serviceResponse;
 	
-	ProgressBar progressBar;
+	public static ProgressBar progressBar;
 
-	private final FeatureTypeSelectionActivity parent = this;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -82,7 +75,7 @@ public class FeatureTypeSelectionActivity extends ListActivity {
 
 		getURL = WFSSelectionActivity.baseURL + getString(R.string.Feature) + "&"
 				+ getString(R.string.Version110) + "&" + getString(R.string.Typename)
-				+ chosenTypeName;
+				+ chosenTypeName + "&OUTPUTFORMAT=GOCAD";
 		Log.d("describeurl", describeURL);
 		Log.d("geturl", getURL);
 		readWebpage(getListView());
@@ -112,33 +105,44 @@ public class FeatureTypeSelectionActivity extends ListActivity {
 
 	private class DownloadWebPageTask extends
 	AsyncTask<String, Void, ArrayList<String>> {
-		int myProgress;
+//		int myProgress;
 		
 		@Override
 		protected ArrayList<String> doInBackground(String... urls) {
-			ArrayList<String> response = null;
+			ArrayList<String> response = new ArrayList<String>(0);
 			for (String url : urls) {
 				DefaultHttpClient client = new DefaultHttpClient();
 				HttpGet httpGet = new HttpGet(url);
 				try {
-					SAXParserFactory spf = SAXParserFactory.newInstance();
-					SAXParser sp = spf.newSAXParser();
-					//
-					XMLReader xr = sp.getXMLReader();
-					//
-					XMLHandler Handler = new XMLHandler(getSearchTag(url));
-					xr.setContentHandler(Handler);
+//					SAXParserFactory spf = SAXParserFactory.newInstance();
+//					SAXParser sp = spf.newSAXParser();
+//					//
+//					XMLReader xr = sp.getXMLReader();
+//					//
+//					XMLHandler Handler = new XMLHandler(getSearchTag(url));
+//					xr.setContentHandler(Handler);
 					HttpResponse execute = client.execute(httpGet);
 					InputStream content = execute.getEntity().getContent();
-					InputSource inSource = new InputSource(content);
-					xr.parse(inSource);
-					while(myProgress<100){
-					    myProgress++;
-					    onProgressUpdate(myProgress);
-					       SystemClock.sleep(100);
-					   }
-					response = Handler.data;
-
+//					InputSource inSource = new InputSource(content);
+//					xr.parse(inSource);
+					
+					String res = readInputStreamAsString(content);
+					
+					
+					response.add(res);
+					
+					
+//					Log.d("versuch", res);
+					
+					
+					
+//					while(myProgress<100){
+//					    myProgress++;
+//					    onProgressUpdate(myProgress);
+//					       SystemClock.sleep(100);
+//					   }
+//					response = Handler.data;
+						
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -148,28 +152,24 @@ public class FeatureTypeSelectionActivity extends ListActivity {
 
 		@Override
 		protected void onPostExecute(ArrayList<String> result) {
-			for (String entry : result) {
-				Log.d("RESULT", entry);
-			}
-			serviceResponse = new String[result.size()];
-			for (int i = 0; i < result.size(); i++) {
-				serviceResponse[i] = result.get(i);
-			}
+						
+			serviceResponse = result.toString();
+			
+			Intent intent = new Intent(FeatureTypeSelectionActivity.this, GREX3DActivity.class);
+			intent.putExtra(getString(R.string.TSObject), serviceResponse);
+			intent.putExtra("ResourceType", "WFS");
+			startActivity(intent);
 
-			Log.d("length", Integer.toString(serviceResponse.length));
-			Intent viewIntent = new Intent(Intent.ACTION_VIEW,
-					Uri.parse(getURL));
-			startActivity(viewIntent);
 		}
 	
-		protected void onProgressUpdate(Integer... values) {
-		   // TODO Auto-generated method stub
-		   progressBar.setProgress(values[0]);
-		  }
-		protected void onPreExecute() {
-			   // TODO Auto-generated method stub
-			   myProgress = 0;
-			  }
+//		protected void onProgressUpdate(Integer... values) {
+//		   // TODO Auto-generated method stub
+//		   progressBar.setProgress(values[0]);
+//		  }
+//		protected void onPreExecute() {
+//			   // TODO Auto-generated method stub
+//			   myProgress = 0;
+//			  }
 	}
 
 	public void readWebpage(View view) {
@@ -185,4 +185,18 @@ public class FeatureTypeSelectionActivity extends ListActivity {
 			return SEARCH_TAG_GETFEATURE;
 		}
 	}
+	
+	public static String readInputStreamAsString(InputStream in) 
+		    throws IOException {
+
+		    BufferedInputStream bis = new BufferedInputStream(in);
+		    ByteArrayOutputStream buf = new ByteArrayOutputStream();
+		    int result = bis.read();
+		    while(result != -1) {
+		      byte b = (byte)result;
+		      buf.write(b);
+		      result = bis.read();
+		    }
+		    return buf.toString();
+		}
 }

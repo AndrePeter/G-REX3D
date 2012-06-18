@@ -14,7 +14,7 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
    
     private ScaleGestureDetector mScaleDetector;
     private float mScaleFactor = 1.f;
-	private final float TOUCH_SCALE_FACTOR = 180.0f / 320;
+	private final float TOUCH_SCALE_FACTOR = 180.0f / 360;
     private HelloOpenGLES20Renderer mRenderer;
     private float mPreviousX;
     private float mPreviousY;
@@ -27,6 +27,8 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
     private float yrealsum = 0;
     private float xsum = 0;
     private float xrealsum = 0;
+    public static float dy = 0;
+    public static float dx = 0;
 	
 	public HelloOpenGLES20SurfaceView(Context context) {
 		
@@ -102,8 +104,8 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 	                
 //	                mRenderer.mdX += realx;
 //	                mRenderer.mdY += realy;
-	                mRenderer.mdX += dx/mDensity/2f;
-	                mRenderer.mdY += dy/mDensity/2f;
+	                mRenderer.mdX += dx/mDensity/2.5f;
+	                mRenderer.mdY += dy/mDensity/2.5f;
 	                
 	                
 	                ysum += dy;

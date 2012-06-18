@@ -82,7 +82,7 @@ public class DataOnSDSelection extends ListActivity {
 	private void searchTSFiles() {
 		File dir = new File(dataPath);
 		Log.d("data", dir.toString());
-		FilenameFilter filter = new FileListFilter(null, new String[] {"ts","xml"});
+		FilenameFilter filter = new FileListFilter(null, new String[] {"ts"});
 		files = dir.listFiles(filter);
 		if (files.length == 0) {
 			Toast.makeText(this, R.string.NoData, Toast.LENGTH_LONG).show();
@@ -134,6 +134,8 @@ public class DataOnSDSelection extends ListActivity {
 		Intent intent = new Intent(DataOnSDSelection.this, GREX3DActivity.class);
 		intent.putExtra(getString(R.string.TSObject), dataPath + File.separator
 				+ TSFileName);
+		Log.d("dateiNAME",TSFileName);
+		intent.putExtra("ResourceType", "SDCARD");
 		startActivity(intent);
 	}
 

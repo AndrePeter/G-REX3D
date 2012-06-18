@@ -19,6 +19,7 @@ package com.andredittrich.surface3d;
 
 import java.nio.Buffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
 
 /**
@@ -46,7 +47,7 @@ public interface OGLLayer {
 	 * 
 	 * @return
 	 */
-	public ShortBuffer getIndexBuffer() ;
+	public IntBuffer getIndexBuffer() ;
 
 	/**
 	 * returns line indices as an ShortBuffer in order of Index_1_of_Line_1,
@@ -54,7 +55,7 @@ public interface OGLLayer {
 	 * 
 	 * @return
 	 */
-	public ShortBuffer getLineBuffer();
+	public IntBuffer getLineBuffer();
 	
 	/**
 	 * returns the normals as an FloatBuffer in order of ...
