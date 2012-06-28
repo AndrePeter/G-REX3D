@@ -104,8 +104,8 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 	                
 //	                mRenderer.mdX += realx;
 //	                mRenderer.mdY += realy;
-	                mRenderer.mdX += dx/mDensity/2.5f;
-	                mRenderer.mdY += dy/mDensity/2.5f;
+	                mRenderer.mdX += (dx/mDensity/2.5f) * 0.008* HelloOpenGLES20Renderer.xExtent;
+	                mRenderer.mdY += (dy/mDensity/2.5f) * 0.008* HelloOpenGLES20Renderer.xExtent;
 	                
 	                
 	                ysum += dy;

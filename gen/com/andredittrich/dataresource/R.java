@@ -11,9 +11,14 @@ public final class R {
     public static final class attr {
     }
     public static final class drawable {
-        public static final int drag128x128=0x7f020000;
-        public static final int drag128x128trans=0x7f020001;
-        public static final int ic_launcher=0x7f020002;
+        public static final int custom_button=0x7f020000;
+        public static final int custom_button_2=0x7f020001;
+        public static final int drag=0x7f020002;
+        public static final int dragdown=0x7f020003;
+        public static final int erdegreentest=0x7f020004;
+        public static final int ic_launcher=0x7f020005;
+        public static final int rotate=0x7f020006;
+        public static final int rotatedown=0x7f020007;
     }
     public static final class id {
         public static final int AddWFSButton=0x7f060006;

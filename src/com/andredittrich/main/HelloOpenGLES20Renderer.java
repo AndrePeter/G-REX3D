@@ -21,9 +21,9 @@ public class HelloOpenGLES20Renderer implements Renderer {
 	public static Float viewHeight;
 	protected static boolean backside;
 	protected static boolean pan = false;
-	public static float viewHeightx;
-	public static float viewHeighty;
-	public static float viewHeightz;
+	public static float xExtent;
+	public static float yExtent;
+	public static float zExtent;
 	ArrayList<FloatBuffer> tris = new ArrayList<FloatBuffer>();
 //	private FloatBuffer triangleVB;
 	public static float mAngleY =1f;
@@ -109,7 +109,7 @@ public class HelloOpenGLES20Renderer implements Renderer {
 		  + "uniform mat4 u_MVMatrix;       \n"		// A constant representing the combined model/view matrix.
 		  			
 		  + "attribute vec4 vPosition;     \n"		// Per-vertex position information we will pass in.
-		  + "vec4 a_Color = vec4(0.09921875, 0.60703125, 0.79453125, 1.0);     \n"
+		  + "vec4 a_Color = vec4(0.796875, 0, 0, 1.0);     \n"
 		  + "attribute vec3 a_Normal;       \n"		// Per-vertex normal information we will pass in.
 		  
 		  + "varying vec3 v_Position;       \n"		// This will be passed into the fragment shader.
@@ -122,7 +122,7 @@ public class HelloOpenGLES20Renderer implements Renderer {
 		// Transform the vertex into eye space.
 		  + "   v_Position = vec3(u_MVMatrix * vPosition);             \n"
 		// Pass through the color.
-		  + "   v_Color = a_Color + 0.5;                                      \n"
+		  + "   v_Color = a_Color + 0.75;                                   \n"
 		// Transform the normal's orientation into eye space.
 		  + "   v_Normal = vec3(u_MVMatrix * vec4(a_Normal, 0.0));      \n"
 		// gl_Position is a special variable used to store the final position.
@@ -145,7 +145,7 @@ public class HelloOpenGLES20Renderer implements Renderer {
 //			+ "   vec3 lightVector = normalize(u_LightPos - modelViewVertex);        \n"
 //			+ "   float diffuse = max(dot(modelViewNormal, lightVector), 0.1);       \n"
 //			+ "   diffuse = diffuse * (1.0 / (0.0001*distance));  \n"
-//			+ "   v_Color = a_Color * diffuse + a_Color * vec4(0.1, 0.1, 0.1, 1.0);                                      \n"
+//			+ "   v_Color = a_Color * diffuse + a_Color * vec4(0.5, 0.5, 0.5, 1.0);                                      \n"
 //			+ "   gl_Position = uMVPMatrix * vPosition;                            \n"
 //			+ "   gl_PointSize = 5.0;         \n"
 //			+ "}                                                                     \n";
@@ -193,6 +193,7 @@ public class HelloOpenGLES20Renderer implements Renderer {
         
         // initialize the triangle vertex array
         initShapes();
+        
         GLES20.glEnable(GLES20.GL_CULL_FACE);
 //		
 //		// Enable depth testing
@@ -230,13 +231,6 @@ public class HelloOpenGLES20Renderer implements Renderer {
             GLES20.glEnableVertexAttribArray(myPPositionHandle);           
         
             
-//            PmNormalHandle = GLES20.glGetAttribLocation(PProgram,
-//    				"a_Normal");
-//            GLES20.glEnableVertexAttribArray(mNormalHandle);
-//            
-//            PmMVMatrixHandle = GLES20.glGetUniformLocation(PProgram,
-//    				"u_MVMatrix");
-            
             
         int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
         int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
@@ -246,8 +240,7 @@ public class HelloOpenGLES20Renderer implements Renderer {
         GLES20.glAttachShader(mProgram, fragmentShader); // add the fragment shader to program
         GLES20.glLinkProgram(mProgram);                  // creates OpenGL program executables
         
-//        GLES20.glBindAttribLocation(mProgram, 0, "vPosition");
-//        GLES20.glBindAttribLocation(mProgram, 1, "a_Normal");        
+ 
         
         // get handle to the vertex shader's vPosition member
         myPositionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition");        
@@ -265,7 +258,7 @@ public class HelloOpenGLES20Renderer implements Renderer {
 				"u_LightPos");
         
 
-        Matrix.setLookAtM(mVMatrix, 0, 0, 0, viewHeightx, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        Matrix.setLookAtM(mVMatrix, 0, 0, 0, xExtent, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
        
               
     }
@@ -439,7 +432,7 @@ public class HelloOpenGLES20Renderer implements Renderer {
         
         // this projection matrix is applied to object coodinates
         // in the onDrawFrame() method
-        Matrix.frustumM(mProjMatrix, 0, -ratio, ratio, -1, 1, 1f, 200);
+        Matrix.frustumM(mProjMatrix, 0, -ratio, ratio, -1, 1, 1f, 200000);
         
     }
     

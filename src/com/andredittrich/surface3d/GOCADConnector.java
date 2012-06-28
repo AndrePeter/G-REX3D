@@ -24,7 +24,9 @@ import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import com.andredittrich.main.HelloOpenGLES20Renderer;
 
@@ -313,9 +315,12 @@ public class GOCADConnector {
 		// "File read complete, but no 'END' reached");
 		// }
 		
-		HelloOpenGLES20Renderer.viewHeightx = (maxX-minX);
-		HelloOpenGLES20Renderer.viewHeighty = (maxY-minY);
-		HelloOpenGLES20Renderer.viewHeightz = (maxZ-minZ);
+		HelloOpenGLES20Renderer.xExtent = (maxX-minX);
+		Log.d("xExtent", Float.toString(HelloOpenGLES20Renderer.xExtent));
+		HelloOpenGLES20Renderer.yExtent = (maxY-minY);
+		Log.d("yExtent", Float.toString(HelloOpenGLES20Renderer.yExtent));
+		HelloOpenGLES20Renderer.zExtent = (maxZ-minZ);
+		Log.d("zExtent", Float.toString(HelloOpenGLES20Renderer.zExtent));
 
 		return correctAll();
 	}
@@ -354,13 +359,13 @@ public class GOCADConnector {
 		/*
 		 * List of vertices and triangles
 		 */
-		private LinkedList<Float> vrtx = new LinkedList<Float>();
+		private List<Float> vrtx = new ArrayList<Float>();
 
-		private LinkedList<Integer> trgl = new LinkedList<Integer>();
+		private List<Integer> trgl = new ArrayList<Integer>();
 
-		private LinkedList<Integer> ln = new LinkedList<Integer>();
+		private List<Integer> ln = new ArrayList<Integer>();
 
-		private LinkedList<Float> nrml = new LinkedList<Float>();
+		private List<Float> nrml = new ArrayList<Float>();
 		/*
 		 * buffers for opengl|es output
 		 */
