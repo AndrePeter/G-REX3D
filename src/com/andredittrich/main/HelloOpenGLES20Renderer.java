@@ -18,6 +18,7 @@ import android.util.Log;
 
 public class HelloOpenGLES20Renderer implements Renderer {
 
+	public static boolean AR = false;
 	public static Float viewHeight;
 	protected static boolean backside;
 	protected static boolean pan = false;
@@ -189,15 +190,20 @@ public class HelloOpenGLES20Renderer implements Renderer {
 	public void onSurfaceCreated(GL10 unused, EGLConfig config) {
 	    
         // Set the background frame color
-        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         
         // initialize the triangle vertex array
-        initShapes();
+        
         
         GLES20.glEnable(GLES20.GL_CULL_FACE);
-//		
-//		// Enable depth testing
+		//
+		// // Enable depth testing
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+		
+		GLES20.glEnable(GLES20.GL_BLEND);
+		GLES20.glEnable(GLES20.GL_BLEND_SRC_ALPHA);
+		
+		initShapes();
         
      // Define a simple shader program for our point.
      		final String pointVertexShader = "uniform mat4 uMVPMatrix;      \n"
@@ -290,81 +296,128 @@ public class HelloOpenGLES20Renderer implements Renderer {
 			
 			
 			
-			Matrix.setIdentityM(mMMatrix, 0);//.setRotateEulerM(mMMatrix, 0, mAngleY, mAngleX, 0);
-
-			
-//			Matrix.scaleM(mAccumulatedTranslation, 0, 1/scale, 1/scale, 1/scale);
-			
-			Matrix.setIdentityM(mCurrentRotation, 0); 
-
-	        Matrix.setIdentityM(mCurrentTranslation, 0); 
-			
-			// RICHTIG DREHEN !!!!
-			
-			if (pan) {
-				
-				Matrix.translateM(mCurrentTranslation, 0, mdX, -mdY, 0);
-				mdX = 0;
-				mdY = 0;
-				Matrix.multiplyMM(mTemporaryMatrix, 0, mCurrentTranslation, 0, mAccumulatedTranslation, 0);
-				System.arraycopy(mTemporaryMatrix, 0, mAccumulatedTranslation, 0, 16);
-				
-				
-				Matrix.multiplyMM(mTemporaryMatrix, 0, mMMatrix, 0, mAccumulatedTranslation, 0);
-		    	System.arraycopy(mTemporaryMatrix, 0, mMMatrix, 0, 16);
-				
-				Matrix.multiplyMM(mTemporaryMatrix, 0, mMMatrix, 0, mAccumulatedRotation, 0);
-		    	System.arraycopy(mTemporaryMatrix, 0, mMMatrix, 0, 16);
-		    	Matrix.scaleM(mMMatrix, 0, scale, scale, scale);
-		    	
-		    	
-//		    	System.arraycopy(mCurrentTranslation, 0, mAccumulatedTranslation, 0, 16);
-				
-				
-				
-			} else {
-				
-				Matrix.rotateM(mCurrentRotation, 0, mAngleX, 0.0f, 1.0f, 0.0f);
-				Matrix.rotateM(mCurrentRotation, 0, mAngleY, 1.0f, 0.0f, 0.0f);
-				
-				mAngleX = 0.0f;
-				mAngleY = 0.0f;
-		    	    	
-				
-//				Matrix.translateM(mCurrentTranslation, 0, mdX/scale, -mdY/scale, 0);
-				Matrix.multiplyMM(mTemporaryMatrix, 0, mAccumulatedTranslation, 0, mMMatrix, 0);
-		    	System.arraycopy(mTemporaryMatrix, 0, mMMatrix, 0, 16);
-		    	
-				
-				// Multiply the current rotation by the accumulated rotation, and then set the accumulated rotation to the result.
-		    	Matrix.multiplyMM(mTemporaryMatrix, 0, mCurrentRotation, 0, mAccumulatedRotation, 0);
-		    	System.arraycopy(mTemporaryMatrix, 0, mAccumulatedRotation, 0, 16);
-		    	    	
-		        // Rotate the cube taking the overall rotation into account.     	
-		    	Matrix.multiplyMM(mTemporaryMatrix, 0, mMMatrix, 0, mAccumulatedRotation, 0);
-		    	System.arraycopy(mTemporaryMatrix, 0, mMMatrix, 0, 16); 
-		    	Matrix.scaleM(mMMatrix, 0, scale, scale, scale);
-		    	
-//		    	Matrix.multiplyMM(mTemporaryMatrix, 0, mMMatrix, 0, mAccumulatedTranslation, 0);
+//			Matrix.setIdentityM(mMMatrix, 0);//.setRotateEulerM(mMMatrix, 0, mAngleY, mAngleX, 0);
+//
+//			
+////			Matrix.scaleM(mAccumulatedTranslation, 0, 1/scale, 1/scale, 1/scale);
+//			
+//			Matrix.setIdentityM(mCurrentRotation, 0); 
+//
+//	        Matrix.setIdentityM(mCurrentTranslation, 0); 
+//			
+//			// RICHTIG DREHEN !!!!
+//			
+//			if (pan) {
+//				
+//				Matrix.translateM(mCurrentTranslation, 0, mdX, -mdY, 0);
+//				mdX = 0;
+//				mdY = 0;
+//				Matrix.multiplyMM(mTemporaryMatrix, 0, mCurrentTranslation, 0, mAccumulatedTranslation, 0);
+//				System.arraycopy(mTemporaryMatrix, 0, mAccumulatedTranslation, 0, 16);
+//				
+//				
+//				Matrix.multiplyMM(mTemporaryMatrix, 0, mMMatrix, 0, mAccumulatedTranslation, 0);
+//		    	System.arraycopy(mTemporaryMatrix, 0, mMMatrix, 0, 16);
+//				
+//				Matrix.multiplyMM(mTemporaryMatrix, 0, mMMatrix, 0, mAccumulatedRotation, 0);
+//		    	System.arraycopy(mTemporaryMatrix, 0, mMMatrix, 0, 16);
+//		    	Matrix.scaleM(mMMatrix, 0, scale, scale, scale);
+//		    	
+//		    	
+////		    	System.arraycopy(mCurrentTranslation, 0, mAccumulatedTranslation, 0, 16);
+//				
+//				
+//				
+//			} else {
+//				
+//				Matrix.rotateM(mCurrentRotation, 0, mAngleX, 0.0f, 1.0f, 0.0f);
+//				Matrix.rotateM(mCurrentRotation, 0, mAngleY, 1.0f, 0.0f, 0.0f);
+//				
+//				mAngleX = 0.0f;
+//				mAngleY = 0.0f;
+//		    	    	
+//				
+////				Matrix.translateM(mCurrentTranslation, 0, mdX/scale, -mdY/scale, 0);
+//				Matrix.multiplyMM(mTemporaryMatrix, 0, mAccumulatedTranslation, 0, mMMatrix, 0);
+//		    	System.arraycopy(mTemporaryMatrix, 0, mMMatrix, 0, 16);
+//		    	
+//				
+//				// Multiply the current rotation by the accumulated rotation, and then set the accumulated rotation to the result.
+//		    	Matrix.multiplyMM(mTemporaryMatrix, 0, mCurrentRotation, 0, mAccumulatedRotation, 0);
+//		    	System.arraycopy(mTemporaryMatrix, 0, mAccumulatedRotation, 0, 16);
+//		    	    	
+//		        // Rotate the cube taking the overall rotation into account.     	
+//		    	Matrix.multiplyMM(mTemporaryMatrix, 0, mMMatrix, 0, mAccumulatedRotation, 0);
 //		    	System.arraycopy(mTemporaryMatrix, 0, mMMatrix, 0, 16); 
-		    	
-				// RICHTIG DREHEN !!!!
-			}
-			
-					
-			
-			
-			
-			
-			
-//	        Matrix.setRotateM(mMxMatrix, 0, mAngleY, 1.0f, 0.0f, 0.0f);
-//	        Matrix.setRotateM(mMyMatrix, 0, mAngleX, 0.0f, 1.0f, 0.0f);
-//	        Matrix.multiplyMM(mMMatrix, 0, mMxMatrix, 0, mMyMatrix, 0);
-			
-//			Matrix.setLookAtM(mVMatrix, 0, mdX, mdY, -120f, mdX, mdY, 0f, 0f, 1.0f, 0.0f);
+//		    	Matrix.scaleM(mMMatrix, 0, scale, scale, scale);
+//		    	
+////		    	Matrix.multiplyMM(mTemporaryMatrix, 0, mMMatrix, 0, mAccumulatedTranslation, 0);
+////		    	System.arraycopy(mTemporaryMatrix, 0, mMMatrix, 0, 16); 
+//		    	
+//				// RICHTIG DREHEN !!!!
+//			}
+//			
+//					
+//			
+//			
+//			
+//			
+//			
+////	        Matrix.setRotateM(mMxMatrix, 0, mAngleY, 1.0f, 0.0f, 0.0f);
+////	        Matrix.setRotateM(mMyMatrix, 0, mAngleX, 0.0f, 1.0f, 0.0f);
+////	        Matrix.multiplyMM(mMMatrix, 0, mMxMatrix, 0, mMyMatrix, 0);
+//			
+////			Matrix.setLookAtM(mVMatrix, 0, mdX, mdY, -120f, mdX, mdY, 0f, 0f, 1.0f, 0.0f);
+//	    	
 	    	
-	    	
-	    	
+       		if (!AR) {
+    			Matrix.setIdentityM(mMMatrix, 0);
+    			Matrix.setIdentityM(mCurrentRotation, 0);
+    			Matrix.setIdentityM(mCurrentTranslation, 0);
+
+    			if (pan) {
+    				Matrix.translateM(mCurrentTranslation, 0, mdX, -mdY, 0);
+    				mdX = 0;
+    				mdY = 0;
+    				Matrix.multiplyMM(mTemporaryMatrix, 0, mCurrentTranslation, 0,
+    						mAccumulatedTranslation, 0);
+    				System.arraycopy(mTemporaryMatrix, 0, mAccumulatedTranslation,
+    						0, 16);
+
+    				Matrix.multiplyMM(mTemporaryMatrix, 0, mMMatrix, 0,
+    						mAccumulatedTranslation, 0);
+    				System.arraycopy(mTemporaryMatrix, 0, mMMatrix, 0, 16);
+
+    				Matrix.multiplyMM(mTemporaryMatrix, 0, mMMatrix, 0,
+    						mAccumulatedRotation, 0);
+    				System.arraycopy(mTemporaryMatrix, 0, mMMatrix, 0, 16);
+    				Matrix.scaleM(mMMatrix, 0, scale, scale, scale);
+    			} else {
+
+    				Matrix.rotateM(mCurrentRotation, 0, mAngleX, 0.0f, 1.0f, 0.0f);
+    				Matrix.rotateM(mCurrentRotation, 0, mAngleY, 1.0f, 0.0f, 0.0f);
+    				mAngleX = 0.0f;
+    				mAngleY = 0.0f;
+
+    				Matrix.multiplyMM(mTemporaryMatrix, 0, mAccumulatedTranslation,
+    						0, mMMatrix, 0);
+    				System.arraycopy(mTemporaryMatrix, 0, mMMatrix, 0, 16);
+
+    				Matrix.multiplyMM(mTemporaryMatrix, 0, mCurrentRotation, 0,
+    						mAccumulatedRotation, 0);
+    				System.arraycopy(mTemporaryMatrix, 0, mAccumulatedRotation, 0,
+    						16);
+
+    				// Rotate the cube taking the overall rotation into account.
+    				Matrix.multiplyMM(mTemporaryMatrix, 0, mMMatrix, 0,
+    						mAccumulatedRotation, 0);
+    				System.arraycopy(mTemporaryMatrix, 0, mMMatrix, 0, 16);
+    				Matrix.scaleM(mMMatrix, 0, scale, scale, scale);
+    			}
+    		} else {
+    			mMMatrix = GREX3DActivity.RotMat;
+    			Log.d("erst", Float.toString(mMMatrix[0]));
+    		}
 	    	Matrix.multiplyMM(mMVPLMatrix, 0, mVMatrix, 0, mMMatrix, 0);
 	    	
 //	    	GLES20.glUniformMatrix4fv(PmMVMatrixHandle, 1, false, mMVPMatrix, 0);

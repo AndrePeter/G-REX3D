@@ -1,6 +1,7 @@
 package com.andredittrich.main;
 
 import android.content.Context;
+import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -32,19 +33,23 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 	
 	public HelloOpenGLES20SurfaceView(Context context) {
 		
-		 super(context);
-		 
-		    mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+		super(context);
 
-	        // Create an OpenGL ES 2.0 context.
-	        setEGLContextClientVersion(2);
-	            
-	        // set the mRenderer member
-	        mRenderer = new HelloOpenGLES20Renderer();
-	        setRenderer(mRenderer);
-	        
-	        // Render the view only when there is a change
-	        setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+		mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+
+		// Create an OpenGL ES 2.0 context.
+		setEGLContextClientVersion(2);
+		setZOrderMediaOverlay(true);
+		setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+		
+
+		// set the mRenderer member
+		mRenderer = new HelloOpenGLES20Renderer();
+		setRenderer(mRenderer);
+		getHolder().setFormat(PixelFormat.TRANSLUCENT);
+//		getHolder().setFormat(PixelFormat.TRANSLUCENT);		
+		// Render the view only when there is a change
+		setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);//.RENDERMODE_WHEN_DIRTY);
 	}
 	
 	
@@ -95,7 +100,8 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 //              
                 mRenderer.mAngleY += dy * TOUCH_SCALE_FACTOR;
                 mRenderer.mAngleX += dx * TOUCH_SCALE_FACTOR;
-	                
+                
+               	                
 	                float realx = (1.21f)*dx/(mRenderer.mHeight/2);
 	                float realy = (1.21f)*dy/(mRenderer.mHeight/2);
 	                
@@ -153,6 +159,12 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 	        return true;
 	    }
 	
+	@Override
+	public void requestRender() {
+		// TODO Auto-generated method stub
+		super.requestRender();
+	}
+
 	private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
@@ -165,90 +177,6 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
             return true;
         }
     }
-//	@Override
-//	public boolean onTouchEvent(MotionEvent ev) {
-//		Log.d("touchevent", "YES");
-//		final int action = ev.getAction();
-//		float x = ev.getX();
-//		float y = ev.getY();
-//		switch (action) {
-//		case MotionEvent.ACTION_DOWN: {
-//			
-//
-//			// Remember where we started
-//			mLastTouchX = x;
-//			mLastTouchY = y;
-//			break;
-//		}
-//
-//		case MotionEvent.ACTION_MOVE: {
-//			x = ev.getX();
-//			y = ev.getY();
-//
-//			// Calculate the distance moved
-//			final float dx = x - mLastTouchX;
-//			final float dy = y - mLastTouchY;
-//			
-//
-//			// Move the object
-//			mRenderer.mdX += dx;
-//			mRenderer.mdY += dy;
-//
-//			mPosX += dx;
-//			mPosY += dy;
-//
-//			// Remember this touch position for the next move event
-//						mLastTouchX = x;
-//						mLastTouchY = y;
-//			// // Invalidate to request a redraw
-//			 invalidate();
-//			 break;
-//		}
-//			
-//		}
-//
-//		return true;
-//	}
-	
-//	@Override 
-//    public boolean onTouchEvent(MotionEvent e) {
-//        // MotionEvent reports input details from the touch screen
-//        // and other input controls. In this case, you are only
-//        // interested in events where the touch position changed.
-//
-//		Log.d("touchevent", "YES");
-//        float x = e.getX();
-//        float y = e.getY();
-//        
-//        switch (e.getAction()) {
-//            case MotionEvent.ACTION_MOVE:
-//    
-//                float dx = x - mPreviousX;
-//                float dy = y - mPreviousY;
-//    
-////                // reverse direction of rotation above the mid-line
-////                if (y > getHeight() / 2) {
-////                  dx = dx * -1 ;
-////                }
-////    
-////                // reverse direction of rotation to left of the mid-line
-////                if (x < getWidth() / 2) {
-////                  dy = dy * -1 ;
-////                }
-//              
-//                mRenderer.mAngleY += dy * TOUCH_SCALE_FACTOR;
-//                mRenderer.mAngleX += dx * TOUCH_SCALE_FACTOR;
-//                mRenderer.mdY += -dy;// * 0.001f;// * TOUCH_SCALE_FACTOR;
-//                mRenderer.mdX += -dx;// * 0.001f;//TOUCH_SCALE_FACTOR;
-//                mPreviousX = x;
-//                mPreviousY = y;
-//                
-//                requestRender();
-//                
-//        }
-//        
-//        
-//        return true;
-//    } 
+
 
 }
