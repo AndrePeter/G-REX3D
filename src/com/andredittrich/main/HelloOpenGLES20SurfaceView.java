@@ -102,11 +102,11 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
                 mRenderer.mAngleX += dx * TOUCH_SCALE_FACTOR;
                 
                	                
-	                float realx = (1.21f)*dx/(mRenderer.mHeight/2);
-	                float realy = (1.21f)*dy/(mRenderer.mHeight/2);
-	                
-	                Log.d("realdy", Float.toString(realy));
-	                Log.d("realdx", Float.toString(realx));
+//	                float realx = (1.21f)*dx/(mRenderer.mHeight/2);
+//	                float realy = (1.21f)*dy/(mRenderer.mHeight/2);
+//	                
+//	                Log.d("realdy", Float.toString(realy));
+//	                Log.d("realdx", Float.toString(realx));
 	                
 //	                mRenderer.mdX += realx;
 //	                mRenderer.mdY += realy;
@@ -114,14 +114,14 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 	                mRenderer.mdY += (dy/mDensity/2.5f) * 0.008* HelloOpenGLES20Renderer.xExtent;
 	                
 	                
-	                ysum += dy;
-	                yrealsum += realy;
-	                Log.d("ysum",Float.toString(ysum));
-	                Log.d("yrealsum",Float.toString(yrealsum));
-	                xsum += dx;
-	                xrealsum += realx;
-	                Log.d("xsum",Float.toString(xsum));
-	                Log.d("xrealsum",Float.toString(xrealsum));
+//	                ysum += dy;
+//	                yrealsum += realy;
+//	                Log.d("ysum",Float.toString(ysum));
+//	                Log.d("yrealsum",Float.toString(yrealsum));
+//	                xsum += dx;
+//	                xrealsum += realx;
+//	                Log.d("xsum",Float.toString(xsum));
+//	                Log.d("xrealsum",Float.toString(xrealsum));
 	            }
 	            requestRender();
 	            xstart = x;

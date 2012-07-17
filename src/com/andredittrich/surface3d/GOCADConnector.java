@@ -63,9 +63,9 @@ public class GOCADConnector {
 	/*
 	 * correction subtrahends for the translation into the origin
 	 */
-	private float correctx;
-	private float correcty;
-	private float correctz;
+	public float correctx;
+	public float correcty;
+	public float correctz;
 
 	public float getMaxX() {
 		return maxX;
@@ -317,10 +317,10 @@ public class GOCADConnector {
 		
 		HelloOpenGLES20Renderer.xExtent = (maxX-minX);
 		Log.d("xExtent", Float.toString(HelloOpenGLES20Renderer.xExtent));
-		HelloOpenGLES20Renderer.yExtent = (maxY-minY);
-		Log.d("yExtent", Float.toString(HelloOpenGLES20Renderer.yExtent));
-		HelloOpenGLES20Renderer.zExtent = (maxZ-minZ);
-		Log.d("zExtent", Float.toString(HelloOpenGLES20Renderer.zExtent));
+//		HelloOpenGLES20Renderer.yExtent = (maxY-minY);
+//		Log.d("yExtent", Float.toString(HelloOpenGLES20Renderer.yExtent));
+//		HelloOpenGLES20Renderer.zExtent = (maxZ-minZ);
+//		Log.d("zExtent", Float.toString(HelloOpenGLES20Renderer.zExtent));
 
 		return correctAll();
 	}

@@ -13,6 +13,11 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.location.LocationProvider;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -29,18 +34,22 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.RelativeLayout.LayoutParams;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.andredittrich.dataresource.R;
 
+import com.andredittrich.surface3d.CoordinateConversion;
 import com.andredittrich.surface3d.GOCADConnector;
 import com.andredittrich.surface3d.OGLLayer;
 
 public class GREX3DActivity extends Activity implements
 SensorEventListener {
 
+	
+	private static final String TAG = GREX3DActivity.class.getSimpleName();
 	private HelloOpenGLES20SurfaceView mGLView;
 	private GOCADConnector connect3D = new GOCADConnector();
 	public static OGLLayer tsobj;
@@ -59,6 +68,20 @@ SensorEventListener {
 	int numberOfCameras;
 	int cameraCurrentlyLocked;
 	int defaultCameraId;
+	
+//	Location variables
+	private LocationManager manager;
+	private LocationListener listener;
+	private LocationProvider lp;
+	private TextView textview;
+	
+//	variables to hold "Landeskoordinaten" and geographic coordinates
+	private double longitude = 0.0;
+	private double latitude = 0.0;
+	private double altitude;	
+	public static double rechtswert;
+	public static double hochwert;
+	private CoordinateConversion cc = new CoordinateConversion();
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -89,66 +112,77 @@ SensorEventListener {
 		getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 		mGLView.mDensity = displayMetrics.density;
 		
-//		RelativeLayout frame = new RelativeLayout(this);
-//		frame.addView(mGLView);
-//		
-//		RelativeLayout rel = new RelativeLayout(this);
-//		LayoutParams params = new RelativeLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
-//		params.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
-//		rel.setLayoutParams(params);
-//		
-//		final Button b1 = new Button(this);		
-//		Drawable d1 = getResources().getDrawable( R.drawable.custom_button );		
-//		b1.setBackgroundDrawable(d1);
-//		LayoutParams paramsbutton1 = new RelativeLayout.LayoutParams(128, 128);
-//		
-//		paramsbutton1.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
-//	    b1.setLayoutParams(paramsbutton1);
-//		
-//		final Button b2 = new Button(this);
-//		Drawable d2 = getResources().getDrawable( R.drawable.custom_button_2 );		
-//		b2.setBackgroundDrawable(d2);
-//		b2.setEnabled(false);
-//		
-//		
-//		LayoutParams paramsbutton2 = new RelativeLayout.LayoutParams(128, 128);
-//		paramsbutton2.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
-//	    b2.setLayoutParams(paramsbutton2);
-//		
-//	    b1.setOnClickListener(new OnClickListener() {
-//
-//			public void onClick(View v) {
-//				
-//				b1.setEnabled(false);
-//				b2.setEnabled(true);
-//
-//					HelloOpenGLES20Renderer.mdX = 0.0f;
-//					HelloOpenGLES20Renderer.mdY = 0.0f;
-//					HelloOpenGLES20Renderer.pan = true;				
-//					
-//			}
-//		});
-//				
-//		
-//		b2.setOnClickListener(new OnClickListener() {
-//
-//			public void onClick(View v) {
-//				
-//				b1.setEnabled(true);
-//				b2.setEnabled(false);
-//				
-//					HelloOpenGLES20Renderer.mAngleX = 0.0f;
-//					HelloOpenGLES20Renderer.mAngleY = 0.0f;
-//				HelloOpenGLES20Renderer.pan = false;
-//			}
-//		});
-//		
-//		rel.addView(b1);
-//		rel.addView(b2);		
-//
-//		frame.addView(rel);
-		
 		createLayout();
+		
+		manager = (LocationManager) getSystemService(LOCATION_SERVICE);
+		
+		// Provider mit grober Auflösung
+		// und niedrigen Energieverbrauch
+		Criteria criteria = new Criteria();
+		criteria.setAccuracy(Criteria.ACCURACY_FINE);
+		criteria.setPowerRequirement(Criteria.POWER_HIGH);
+		
+		// Namen ausgeben
+		String name = manager.getBestProvider(criteria, false);
+		
+		Log.d("???"+TAG, name);
+		// LocationListener-Objekt erzeugen
+		manager.isProviderEnabled(name);
+		
+		listener = new LocationListener() {
+			public void onStatusChanged(String provider, int status,
+					Bundle extras) {
+				Log.d(TAG, "onStatusChanged()");
+				Log.d(TAG, Boolean.toString(manager.isProviderEnabled(provider)));
+				
+			}
+
+			public void onProviderEnabled(String provider) {
+				Log.d(TAG, "onProviderEnabled()");
+				textview.setText("enabled");
+			}
+
+			public void onProviderDisabled(String provider) {
+				Log.d(TAG, "onProviderDisabled()");
+				textview.setText("disabled");
+			}
+
+			public void onLocationChanged(Location location) {
+				
+				if (location != null) {
+					Log.d(TAG, "onLocationChanged()");
+					latitude = location.getLatitude();
+					longitude = location.getLongitude();
+					altitude = location.getAltitude();
+					String s = "Breite: " + latitude
+							+ "\nLänge: " + longitude
+							+ "\nHöhe: " + altitude
+							+ "\nGenauigkeit: " + location.getAccuracy();
+					textview.setText(s);
+				} else {
+					Location lastKnownLocation = manager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+					
+					latitude = lastKnownLocation.getLatitude();
+					longitude = lastKnownLocation.getLongitude();
+					altitude = lastKnownLocation.getAltitude();
+					
+					String s = "Breite: " + latitude
+							+ "\nLänge: " + longitude
+							+ "\nHöhe: " + altitude
+							+ "\nGenauigkeit: " + lastKnownLocation.getAccuracy();
+					textview.setText(s);
+				}
+				double[] gk = cc.latLon2GK(latitude, longitude);
+				HelloOpenGLES20Renderer.eyeX = (float) (gk[0] - connect3D.correctx);
+				HelloOpenGLES20Renderer.eyeY = (float) (gk[1] - connect3D.correcty);
+				HelloOpenGLES20Renderer.eyeZ = (float) (altitude - connect3D.correctz);
+				Log.d("GK",gk.toString());
+				mGLView.requestRender();
+				
+			}
+		};
+		manager.requestLocationUpdates(name, 3000, 0,
+				listener);
 		
 		setContentView(frame);
 	}
@@ -197,11 +231,12 @@ SensorEventListener {
 			mCamera = null;
 		}
 		mSensorManager.unregisterListener(this);
+		manager.removeUpdates(listener);
 	}
 
 	@Override
 	protected void onResume() {
-super.onResume();
+		super.onResume();
 		
 		resetUI();
 		// The following call resumes a paused rendering thread.
@@ -340,7 +375,13 @@ super.onResume();
 		
 
 		rel.addView(s1);
-
+		textview = new TextView(this);
+		textview.setText("Start");
+		LayoutParams paramstext = new RelativeLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		paramstext.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+		paramstext.addRule(RelativeLayout.CENTER_HORIZONTAL);
+		textview.setLayoutParams(paramstext);
+		rel.addView(textview);
 		rel.addView(myZoomBar, zoomBarParams);
 
 		frame.addView(rel);
