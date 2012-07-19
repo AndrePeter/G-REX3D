@@ -3,6 +3,7 @@ package com.andredittrich.main;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.widget.SeekBar;
 
@@ -15,7 +16,7 @@ import android.widget.SeekBar;
  */
 public class VerticalSeekBar extends SeekBar {
 
-    public VerticalSeekBar(Context context) {
+   	public VerticalSeekBar(Context context) {
         super(context);
     }
 
@@ -60,9 +61,10 @@ public class VerticalSeekBar extends SeekBar {
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (!isEnabled()) {
-            return false;
-        }
+    	setEnabled(true);
+//        if (!isEnabled()) {
+//            return false;
+//        }
 
         switch (event.getAction()) {
         case MotionEvent.ACTION_DOWN:

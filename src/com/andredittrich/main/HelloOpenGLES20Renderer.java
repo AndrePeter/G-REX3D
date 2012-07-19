@@ -13,20 +13,18 @@ import com.andredittrich.surface3d.OGLLayer;
 public class HelloOpenGLES20Renderer implements Renderer {
 
 	public static boolean AR = false;
-//	public static Float viewHeight;
-//	protected static boolean backside;
 	protected static boolean pan = false;
 	public static float xExtent;
 //	public static float yExtent;
 //	public static float zExtent;
 	public static float eyeX = 0.0f;
 	public static float eyeY = 0.0f;
-	public static float eyeZ = xExtent;
+	public static float eyeZ = 0.0f;
 	public static float mAngleY = 1f;
 	public static float mAngleX = 1f;
 	public static float mdY;
 	public static float mdX;
-	public float scale = 1.f;
+	public static float scale = 1.f;
 	private int muMVPMatrixHandle;
 	private int PuMVPMatrixHandle;
 
@@ -212,17 +210,17 @@ public class HelloOpenGLES20Renderer implements Renderer {
 		// Set the background frame color
 		GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
-		// initialize the triangle vertex array
-
+		// Enable culling, depth-testing and (alpha-)blending
 		GLES20.glEnable(GLES20.GL_CULL_FACE);
-		//
-		// // Enable depth testing
 		GLES20.glEnable(GLES20.GL_DEPTH_TEST);
-
 		GLES20.glEnable(GLES20.GL_BLEND);
 		GLES20.glEnable(GLES20.GL_BLEND_SRC_ALPHA);
 
-		initShapes();
+		// Initialize geometry
+		layer = GREX3DActivity.tsobj;
+		
+		eyeZ = xExtent;
+//		initShapes();
 
 //		// Define a simple shader program for our point.
 //		final String pointVertexShader = "uniform mat4 uMVPMatrix;      \n"
@@ -281,9 +279,6 @@ public class HelloOpenGLES20Renderer implements Renderer {
 		mMVMatrixHandle = GLES20.glGetUniformLocation(mProgram, "u_MVMatrix");
 		mLightPosHandle = GLES20.glGetUniformLocation(mProgram, "u_LightPos");
 
-//		Matrix.setLookAtM(mVMatrix, 0, 0, 0, xExtent, 0f, 0f, 0f, 0f, 1.0f,
-//				0.0f);
-
 	}
 
 	public void onDrawFrame(GL10 unused) {
@@ -328,51 +323,37 @@ public class HelloOpenGLES20Renderer implements Renderer {
 			// Use rotation matrix of device orientation sensors as ModelMatrix
 			mMMatrix = GREX3DActivity.RotMat;
 
-			float[] oriVec = new float[4];
-			float[] startVec = new float[4];
-			startVec[0] = 0f;
-			startVec[1] = 0f;
-			startVec[2] = -1f;
-			startVec[3] = 1f;
-			Matrix.multiplyMV(oriVec, 0, mMMatrix, 0, startVec, 0);
-			float lambda = xExtent / oriVec[2];
-			float mu = lambda * oriVec[0];
-			float teta = lambda * oriVec[1];
-			Matrix.setLookAtM(mVMatrix, 0, 0, 0, xExtent, mu, teta, 0f, 0f,
+			float[] myNy = calcViewCenter();
+			Matrix.setLookAtM(mVMatrix, 0, 0, 0, xExtent, myNy[0], myNy[1], 0f, 0f,
 					1.0f, 0.0f);
-
-			// float lambda = eyeZ/ oriVec[2];
-			// float my = eyeX + lambda*oriVec[0];
-			// float ny = eyeY + lambda*oriVec[1];
-			// Matrix.setLookAtM(mVMatrix, 0, eyeX, eyeY, eyeZ, my, ny, 0f, 0f,
-			// 1.0f,
-			// 0.0f);
+			// Matrix.setLookAtM(mVMatrix, 0, eyeX, eyeY, eyeZ, myNy[0], myNy[1], 0f, 0f,
+			// 1.0f, 0.0f);		
 		}
 
+		// Combine ModelMatrix and ViewMatrix 
 		Matrix.multiplyMM(mMVPLMatrix, 0, mVMatrix, 0, mMMatrix, 0);
 
-		Matrix.setIdentityM(mLightModelMatrix, 0);
-		Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0,
-				mLightPosInModelSpace, 0);
-		Matrix.multiplyMV(mLightPosInEyeSpace, 0, mMVPLMatrix, 0,
-				mLightPosInWorldSpace, 0);
-		GLES20.glUniform3f(mLightPosHandle, mLightPosInEyeSpace[0],
-				mLightPosInEyeSpace[1], mLightPosInEyeSpace[2]);
-		// Log.d("lightPosxyz", Float.toString(mLightPosInEyeSpace[0]));
-
+		// Calculate light position
+		calcLightPos();
+//		Matrix.setIdentityM(mLightModelMatrix, 0);
+//		Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0,
+//				mLightPosInModelSpace, 0);
+//		Matrix.multiplyMV(mLightPosInEyeSpace, 0, mMVPLMatrix, 0,
+//				mLightPosInWorldSpace, 0);
+//		GLES20.glUniform3f(mLightPosHandle, mLightPosInEyeSpace[0],
+//				mLightPosInEyeSpace[1], mLightPosInEyeSpace[2]);
+		
+		// Transmit light matrix to shader
 		GLES20.glUniformMatrix4fv(mMVMatrixHandle, 1, false, mMVPLMatrix, 0);
 
+		// Apply a ModelView Projection transformation
 		Matrix.multiplyMM(mTemporaryMatrix, 0, mProjMatrix, 0, mMVPLMatrix, 0);
 		System.arraycopy(mTemporaryMatrix, 0, mMVPMatrix, 0, 16);
-		// Apply a ModelView Projection transformation
-		// Matrix.multiplyMM(mMVPMatrix, 0, mProjMatrix, 0, mVMatrix, 0);
+		
+		// Transmit ModelViewProjection Matrix to shader
 		GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, mMVPMatrix, 0);
-		// Draw the triangle
-
-		/*
-		 * do not draw triangles if the object should not be filled. then only
-		 * draw the vertices.
-		 */
+		
+		// Draw geometry front (triangles) and backside (lines)
 		GLES20.glDrawElements(GLES20.GL_TRIANGLES, layer.getIndexBuffer()
 				.capacity(), GLES20.GL_UNSIGNED_INT, layer.getIndexBuffer());
 		GLES20.glDrawElements(GLES20.GL_LINES,
@@ -381,6 +362,37 @@ public class HelloOpenGLES20Renderer implements Renderer {
 
 //		GLES20.glUseProgram(PProgram);
 //		drawPoints();
+	}
+
+	private void calcLightPos() {
+		Matrix.setIdentityM(mLightModelMatrix, 0);
+		Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0,
+				mLightPosInModelSpace, 0);
+		Matrix.multiplyMV(mLightPosInEyeSpace, 0, mMVPLMatrix, 0,
+				mLightPosInWorldSpace, 0);
+		GLES20.glUniform3f(mLightPosHandle, mLightPosInEyeSpace[0],
+				mLightPosInEyeSpace[1], mLightPosInEyeSpace[2]);
+		
+	}
+
+	private float[] calcViewCenter() {
+		
+		float[] oriVec = new float[4];
+		float[] startVec = new float[4];
+		startVec[0] = 0f;
+		startVec[1] = 0f;
+		startVec[2] = -1f;
+		startVec[3] = 1f;
+		Matrix.multiplyMV(oriVec, 0, mMMatrix, 0, startVec, 0);
+		float lambda = xExtent / oriVec[2];
+		float my = lambda * oriVec[0];
+		float ny = lambda * oriVec[1];
+		
+		// float lambda = eyeZ/ oriVec[2];
+		// float my = eyeX + lambda*oriVec[0];
+		// float ny = eyeY + lambda*oriVec[1];
+		
+		return new float[] {my, ny};
 	}
 
 	private void rotateScene() {

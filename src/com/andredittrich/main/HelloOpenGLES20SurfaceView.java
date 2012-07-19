@@ -64,6 +64,7 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 	        final int action = event.getAction();
 	        switch (action & MotionEvent.ACTION_MASK) {
 	        case MotionEvent.ACTION_DOWN: {
+	        	GREX3DActivity.myZoomBar.setEnabled(false);
 	            final float x = event.getX();
 	            final float y = event.getY();
                 
@@ -85,9 +86,6 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 	            if (!mScaleDetector.isInProgress()) {
 	                float dx = x - xstart;
 	                float dy = y - ystart;
-	                Log.d("dy",Float.toString(dy));
-	                Log.d("dx",Float.toString(dx));
-	                
 //	                // reverse direction of rotation above the mid-line
 //                if (y > getHeight() / 2) {
 //                  dx = dx * -1 ;
@@ -168,6 +166,7 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 	private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
+        	if (!HelloOpenGLES20Renderer.AR) {
             mScaleFactor *= detector.getScaleFactor();            
             
             // Don't let the object get too small or too large.
@@ -175,6 +174,10 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
             mRenderer.scale = mScaleFactor;
             requestRender();
             return true;
+        	} else {
+        		return false;
+        	}
+        	
         }
     }
 
