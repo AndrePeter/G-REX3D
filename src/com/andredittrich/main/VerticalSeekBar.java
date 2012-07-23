@@ -3,8 +3,10 @@ package com.andredittrich.main;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
+import android.view.SurfaceView;
 import android.widget.SeekBar;
 
 
@@ -62,6 +64,8 @@ public class VerticalSeekBar extends SeekBar {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
     	setEnabled(true);
+    	GREX3DActivity.mPreview.mSurfaceView.setVisibility(SurfaceView.INVISIBLE);
+    	GREX3DActivity.removeLocUpdates();
 //        if (!isEnabled()) {
 //            return false;
 //        }
@@ -71,7 +75,11 @@ public class VerticalSeekBar extends SeekBar {
         case MotionEvent.ACTION_MOVE:
         case MotionEvent.ACTION_UP:
             setProgress(getMax() - (int) (getMax() * event.getY() / getHeight()));
+            HelloOpenGLES20Renderer.eyeZ = getMax() - (int) (getMax() * event.getY() / getHeight());
+            HelloOpenGLES20Renderer.XX = getMax() - (int) (getMax() * event.getY() / getHeight());
+//            Log.d("WERT", Float.toString(HelloOpenGLES20Renderer.eyeZ));
             onSizeChanged(getWidth(), getHeight(), 0, 0);
+            
             break;
 
         case MotionEvent.ACTION_CANCEL:

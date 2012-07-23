@@ -1,0 +1,82 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  Internal Error (classFileParser.cpp:3494), pid=3836, tid=5068
+#  Error: ShouldNotReachHere()
+#
+# JRE version: 6.0_26-b03
+# Java VM: Java HotSpot(TM) 64-Bit Server VM (20.1-b02 mixed mode windows-amd64 compressed oops)
+# If you would like to submit a bug report, please visit:
+#   http://java.sun.com/webapps/bugreport/crash.jsp
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x000000000020b800):  JavaThread "Unknown thread" [_thread_in_vm, id=5068, stack(0x0000000002380000,0x0000000002480000)]
+
+Stack: [0x0000000002380000,0x0000000002480000]
+[error occurred during error reporting (printing stack bounds), id 0xc0000005]
+
+
+---------------  P R O C E S S  ---------------
+
+Java Threads: ( => current thread )
+
+Other Threads:
+
+=>0x000000000020b800 (exited) JavaThread "Unknown thread" [_thread_in_vm, id=5068, stack(0x0000000002380000,0x0000000002480000)]
+
+VM state:not at safepoint (not fully initialized)
+
+VM Mutex/Monitor currently owned by a thread: None
+
+Dynamic libraries:
+0x0000000000400000 - 0x000000000042e000 	C:\Program Files\Java\jre6\bin\javaw.exe
+0x0000000076f90000 - 0x0000000077139000 	C:\Windows\SYSTEM32\ntdll.dll
+0x0000000076e70000 - 0x0000000076f8f000 	C:\Windows\system32\kernel32.dll
+0x000007fefd730000 - 0x000007fefd79c000 	C:\Windows\system32\KERNELBASE.dll
+0x000007fefe570000 - 0x000007fefe64b000 	C:\Windows\system32\ADVAPI32.dll
+0x000007fefe940000 - 0x000007fefe9df000 	C:\Windows\system32\msvcrt.dll
+0x000007fefea80000 - 0x000007fefea9f000 	C:\Windows\SYSTEM32\sechost.dll
+0x000007fefe7a0000 - 0x000007fefe8cd000 	C:\Windows\system32\RPCRT4.dll
+0x00000000768b0000 - 0x00000000769aa000 	C:\Windows\system32\USER32.dll
+0x000007fefe8d0000 - 0x000007fefe937000 	C:\Windows\system32\GDI32.dll
+0x000007fefe790000 - 0x000007fefe79e000 	C:\Windows\system32\LPK.dll
+0x000007feff0c0000 - 0x000007feff189000 	C:\Windows\system32\USP10.dll
+0x000007fefeb20000 - 0x000007fefeb4e000 	C:\Windows\system32\IMM32.DLL
+0x000007feff190000 - 0x000007feff299000 	C:\Windows\system32\MSCTF.dll
+0x000000006d7f0000 - 0x000000006dfa8000 	C:\Program Files\Java\jre6\bin\server\jvm.dll
+0x000007fefb770000 - 0x000007fefb7ab000 	C:\Windows\system32\WINMM.dll
+0x000000006d760000 - 0x000000006d76e000 	C:\Program Files\Java\jre6\bin\verify.dll
+0x000000006d3b0000 - 0x000000006d3d7000 	C:\Program Files\Java\jre6\bin\java.dll
+0x0000000077150000 - 0x0000000077157000 	C:\Windows\system32\PSAPI.DLL
+0x000000006d7b0000 - 0x000000006d7c2000 	C:\Program Files\Java\jre6\bin\zip.dll
+
+VM Arguments:
+jvm_args: -Dfile.encoding=Cp1252 -Xbootclasspath:C:\Users\ujdai\android-sdks\platforms\android-14\android.jar 
+java_command: com.andredittrich.surface3d.CoordinateTrafo
+Launcher Type: SUN_STANDARD
+
+Environment Variables:
+JAVA_HOME=C:\Program Files (x86)\Java\jre6
+PATH=C:\Program Files\ImageMagick-6.7.4-Q16;C:\Program Files (x86)\PHP\;C:\Python25\Lib\site-packages\PyQt4\bin;C:\Python25;C:\Program Files (x86)\ATI Stream\bin\x86_64;C:\Program Files (x86)\ATI Stream\bin\x86;C:\Windows\system32;C:\Windows;C:\Windows\System32\Wbem;C:\Windows\System32\WindowsPowerShell\v1.0\;C:\Program Files (x86)\ATI Technologies\ATI.ACE\Core-Static;C:\Program Files (x86)\qtjambi-win32-lgpl-4.5.2_01\bin;C:\Program Files\MySQL\MySQL Server 5.5\bin;C:\Program Files (x86)\pythonxy\SciTE-2.26;C:\Program Files (x86)\pythonxy\mingw\bin;C:\Program Files (x86)\pythonxy\swig;C:\Program Files (x86)\pythonxy\gettext\bin;C:\Program Files (x86)\apache-maven-2.1.x\bin;C:\Program Files (x86)\Java\jre6\bin;C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin;C:\Program Files\Microsoft Windows Performance Toolkit\;C:\Program Files\MATLAB\R2011b\runtime\win64;C:\Program Files\MATLAB\R2011b\bin;C:\Program Files (x86)\MATLAB\MATLAB Compiler Runtime\v713\runtime\win32;C:\Program Files (x86)\MiKTeX 2.9\miktex\bin\;C:\Program Files\SlikSvn\bin;C:\Program Files\Instant Reality\bin\;C:\Program Files\Mercurial;C:\Windows\System32;C:\Program Files (x86)\apache-maven-2.2.1\bin;C:\Program Files (x86)\Java\jre6\bin;C:\Program Files (x86)\Android\android-sdk\tools;C:\Program Files (x86)\Android\android-sdk\platform-tools
+USERNAME=ujdai
+LD_LIBRARY_PATH=C:\qtjambi-win32-lgpl-4.5.2_01\qtjambi-win32-lgpl-4.5.2_01\lib C:\BUNDLER\bundler-v0.3-binary\bin
+OS=Windows_NT
+PROCESSOR_IDENTIFIER=AMD64 Family 16 Model 10 Stepping 0, AuthenticAMD
+
+
+
+---------------  S Y S T E M  ---------------
+
+OS: Windows 7 Build 7601 Service Pack 1
+
+CPU:total 6 (6 cores per cpu, 1 threads per core) family 16 model 10 stepping 0, cmov, cx8, fxsr, mmx, sse, sse2, sse3, popcnt, mmxext, 3dnow, 3dnowext, lzcnt, sse4a
+
+Memory: 4k page, physical 4193512k(1688836k free), swap 8385172k(5313268k free)
+
+vm_info: Java HotSpot(TM) 64-Bit Server VM (20.1-b02) for windows-amd64 JRE (1.6.0_26-b03), built on May  4 2011 07:15:24 by "java_re" with MS VC++ 8.0 (VS2005)
+
+time: Fri Jul 20 17:41:57 2012
+elapsed time: 0 seconds
+

@@ -18,6 +18,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -42,70 +43,48 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 import com.andredittrich.dataresource.R;
 
 import com.andredittrich.surface3d.CoordinateConversion;
+import com.andredittrich.surface3d.CoordinateTrafo;
+import com.andredittrich.surface3d.DatumParams;
 import com.andredittrich.surface3d.GOCADConnector;
 import com.andredittrich.surface3d.OGLLayer;
 
 public class GREX3DActivity extends Activity implements SensorEventListener {
 
-	@Override
-	protected void onStop() {
-		// TODO Auto-generated method stub
-		super.onStop();
-		
-		mGLView.onPause();
-		if (mCamera != null) {
-			mPreview.setCamera(null);
-			mCamera.release();
-			mCamera = null;
-		}
-		mSensorManager.unregisterListener(this);
-		manager.removeUpdates(listener);
-	}
 	
-	@Override
-	protected void onRestart() {
-		// TODO Auto-generated method stub
-		super.onRestart();
-		resetUI();
-	}
-
-
-
 	private static final String TAG = GREX3DActivity.class.getSimpleName();
 	private static boolean AR = false;
-	private HelloOpenGLES20SurfaceView mGLView;
-	private GOCADConnector connect3D = new GOCADConnector();
+	private static HelloOpenGLES20SurfaceView mGLView;
+	private static GOCADConnector connect3D = new GOCADConnector();
 	public static OGLLayer tsobj;
-	private SensorManager mSensorManager;
+	private static SensorManager mSensorManager;
 	private float[] rotvec = new float[3];
 	public static float[] RotMat = new float[16];
 	private FrameLayout frame;
-	private Button b1;
-	private Button b2;
+	private static Button b1;
+	private static Button b2;
 	public static VerticalSeekBar myZoomBar;
-	private Switch s1;
+	private static Switch s1;
 
 	// Camera variables
-	private Preview mPreview;
+	public static Preview mPreview;
 	Camera mCamera;
 	int numberOfCameras;
 	int cameraCurrentlyLocked;
 	int defaultCameraId;
 
 	// Location variables
-	private LocationManager manager;
-	private LocationListener listener;
+	private static LocationManager manager;
+	private static LocationListener listener;
 	private LocationProvider lp;
 	private TextView textview;
-	private String providerName;
+	private static String providerName;
 
 	// variables to hold "Landeskoordinaten" and geographic coordinates
 	private double longitude = 0.0;
 	private double latitude = 0.0;
 	private double altitude;
-	public static double rechtswert;
-	public static double hochwert;
-	private CoordinateConversion cc = new CoordinateConversion();
+	CoordinateTrafo ct;
+	public static int epsg;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -121,8 +100,8 @@ public class GREX3DActivity extends Activity implements SensorEventListener {
 		}
 
 		getTSObject(intentData, intentType);
-
-		Log.d("eyeZ", Float.toString(HelloOpenGLES20Renderer.eyeZ));
+		Log.d("EPSG", Integer.toString(epsg));
+		ct = new CoordinateTrafo(epsg);
 
 		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 		initListeners();
@@ -130,7 +109,7 @@ public class GREX3DActivity extends Activity implements SensorEventListener {
 		// as the ContentView for this Activity
 		mGLView = new HelloOpenGLES20SurfaceView(this);
 
-		requestWindowFeature(Window.FEATURE_LEFT_ICON);//FEATURE_LEFT_TITLE);
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 //		getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
 		final DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -198,105 +177,25 @@ public class GREX3DActivity extends Activity implements SensorEventListener {
 					textview.setText(s);
 				}
 //				double[] gk = cc.latLon2GK(latitude, longitude);
-				float[] gk = LatLon2GK(latitude, longitude, altitude);
-				HelloOpenGLES20Renderer.eyeX = (float) (gk[0] - connect3D.correctx);
-				HelloOpenGLES20Renderer.eyeY = (float) (gk[1] - connect3D.correcty);
-				HelloOpenGLES20Renderer.eyeZ = (float) (altitude - connect3D.correctz);
-				Log.d("rechtswert ", Float.toString(gk[0]));
-				Log.d("hochwert ", Float.toString(gk[1]));
-				mGLView.requestRender();
+				double[] transformedCoordinate = ct.transformCoordinate(latitude, longitude, altitude);
+//				float[] gk = LatLon2GK(latitude, longitude, altitude);
+//				HelloOpenGLES20Renderer.eyeX = (float) (transformedCoordinate[0] - connect3D.correctx);
+//				HelloOpenGLES20Renderer.eyeY = (float) (transformedCoordinate[1] - connect3D.correcty);
+//				HelloOpenGLES20Renderer.eyeZ = (float) (altitude - connect3D.correctz);
+				
+//				Log.d("dx", Float.toString((float) (3492595.0 - connect3D.correctx)));
+//				Log.d("dy", Float.toString((float) (5341589.0 - connect3D.correcty)));
+//				Log.d("dz", Float.toString((float) (1000.0 - connect3D.correctz)));
+//				HelloOpenGLES20Renderer.eyeX = (float) (3492595.0 - connect3D.correctx);
+//				HelloOpenGLES20Renderer.eyeY = (float) (5341589.0 - connect3D.correcty);
+//				HelloOpenGLES20Renderer.eyeZ = (float) (1000.0 - connect3D.correctz);
+//				InterpolateCoordinates();
+				Log.d("rechtswert ", Double.toString(transformedCoordinate[0]));
+				Log.d("hochwert ", Double.toString(transformedCoordinate[1]));
+//				mGLView.requestRender();
 
 			}
-
-				public float[] LatLon2GK(double B, double L, double h) {
-
-//		double B = 49.;
-//		double L = 8.;
-//		double h = 0;
-		double Brad = B*Math.PI/180.;
-		double Lrad = L*Math.PI/180.;
-		
-		double Bessela = 6377397.15508;
-		double Besselb = 6356078.9629;
-		double Bessele2 = 0.00667437223115226;
-		double WGSa = 6378137.;
-		double WGSb = 6356752.31425;
-		double WGSe2 = 0.00669437998863492;
-		double dx = -598.1;
-		double dy = -73.7;
-		double dz = -418.2;
-		double ex = 0.202/3600*Math.PI/180.;		
-		double ey = 0.045/3600*Math.PI/180.;
-		double ez = -2.455/3600*Math.PI/180.;
-		double m = -6.7*0.000001+1;		
-		
-		double WGSN = WGSa/Math.sqrt(1-WGSe2*Math.pow(Math.sin(Brad), 2));
-		double vecx = (WGSN+h)*Math.cos(Brad)*Math.cos(Lrad);
-		double vecy = (WGSN+h)*Math.cos(Brad)*Math.sin(Lrad);;
-		double vecz = (WGSN*(Math.pow(WGSb, 2)/Math.pow(WGSa, 2))+h)*Math.sin(Brad);
-		
-		double rottedx = vecx*1. + vecy*ez + vecz*-ey;
-		double rottedy = vecx*-ez + vecy*1. + vecz*ex;
-		double rottedz = vecx*ey + vecy*-ex + vecz*1.;
-		double scalex = rottedx*m;
-		double scaley = rottedy*m;
-		double scalez = rottedz*m;
-		double dxrot = dx*1. + dy*ez + dz*-ey;
-		double dyrot = dx*-ez + dy*1. + dz*ex;
-		double dzrot = dx*ey + dy*-ex + dz*1.;
-		
 				
-		double x = scalex + dxrot;
-		double y = scaley + dyrot;
-		double z = scalez + dzrot;
-		
-		double s = Math.sqrt(x*x+y*y);
-		double T = Math.atan((z*Bessela)/(s*Besselb));
-		double BradGK = Math.atan( (z+Bessele2*(Math.pow(Bessela, 2)/Besselb)*Math.pow(Math.sin(T),3)) / (s-Bessele2*Bessela*Math.pow(Math.cos(T), 3)) );
-		double LradGK = Math.atan(y/x);
-		double BGK = BradGK*180./Math.PI;
-		double LGK = LradGK*180./Math.PI;
-//		double Brad = B*Math.PI/180.;		
-		double n = (Bessela-Besselb)/(Bessela+Besselb);
-		double e = (Math.pow(Bessela, 2)-Math.pow(Besselb, 2))/Math.pow(Bessela, 2);
-		double ny = Math.sqrt((Math.pow(Bessela, 2)/Math.pow(Besselb, 2))*e*Math.pow(Math.cos(BradGK), 2));
-		double t = Math.tan(BradGK);
-		double NGK = Bessela/Math.sqrt(1-e*Math.pow(Math.sin(BradGK),2));
-		double alpha = ((Bessela+Besselb)/2)*(1+0.25*Math.pow(n,2)+(1./64.)*Math.pow(n, 4));
-		double beta = -(3./2.)*n+(9./16.)*Math.pow(n, 3)-(3./32.)*Math.pow(n, 5);
-		double gamma = (15./16.)*Math.pow(n, 2)-(15./32.)*Math.pow(n, 4);
-		double delta = -(35./48.)*Math.pow(n, 3)+(105./256.)*Math.pow(n, 5);
-		double epsilon = (315./512.)*Math.pow(n, 4);
-		double L0;
-		if (Math.abs(LGK-6)<1.5) {
-			L0 = 6f;
-		} else if(Math.abs(LGK-9)<1.5) {
-			L0 = 9f;
-		} else if(Math.abs(LGK-12)<1.5) {
-			L0 = 12f;
-		} else {
-			L0 = 15f;
-		}
-		double l = (LGK-L0)*Math.PI/180.;
-		double rw2 = +(NGK / 6) * Math.pow(Math.cos(BradGK), 3)
-				* (1 - Math.pow(t, 2) + Math.pow(ny, 2)) * Math.pow(l, 3);
-		double rw1 = NGK * Math.cos(BradGK) * l;
-		double hw2 = (t / 24)* NGK* Math.pow(Math.cos(BradGK), 4)* (5 - Math.pow(t, 2) + 9 * Math.pow(ny, 2) + 4 * Math.pow(ny,	4))*Math.pow(l, 4);
-		System.out.println("hw2 " + Double.toString(hw2));
-		double hw1 = (t / 2) * NGK * Math.pow(Math.cos(BradGK), 2) * Math.pow(l, 2);
-		System.out.println("hw1 " + Double.toString(hw1));
-		double arclength = alpha
-				* (BradGK + beta * Math.sin(2 * BradGK) + gamma
-						* Math.sin(4 * BradGK) + delta * Math.sin(6 * BradGK) + epsilon
-						* Math.sin(8 * BradGK));
-		float hochwert = (float) (arclength + hw1 + hw2);
-		float rechtswert = (float) (rw1 + rw2 + 500000 + L0 / 3 * 1000000);
-		
-		System.out.println("hochwert " + Double.toString(hochwert));
-		System.out.println("rechtswert " + Double.toString(rechtswert));
-		
-		return new float[]{rechtswert, hochwert};
-	}
 		};
 //		 manager.requestLocationUpdates(providerName, 0, 0,
 //		 listener);
@@ -374,6 +273,28 @@ public class GREX3DActivity extends Activity implements SensorEventListener {
 		// SensorManager.SENSOR_DELAY_FASTEST);
 	}
 
+	@Override
+	protected void onStop() {
+		// TODO Auto-generated method stub
+		super.onStop();
+		
+		mGLView.onPause();
+		if (mCamera != null) {
+			mPreview.setCamera(null);
+			mCamera.release();
+			mCamera = null;
+		}
+		mSensorManager.unregisterListener(this);
+		manager.removeUpdates(listener);
+	}
+	
+	@Override
+	protected void onRestart() {
+		// TODO Auto-generated method stub
+		super.onRestart();
+		resetUI();
+	}
+	
 	private void resetUI() {
 		// TODO Auto-generated method stub
 		
@@ -395,7 +316,8 @@ public class GREX3DActivity extends Activity implements SensorEventListener {
 //		mSensorManager.unregisterListener(GREX3DActivity.this);
 		manager.removeUpdates(listener);
 		mGLView.onResume();
-		mGLView.requestRender();
+//		mGLView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
+//		mGLView.requestRender();
 
 	}
 
@@ -474,7 +396,7 @@ public class GREX3DActivity extends Activity implements SensorEventListener {
 				HelloOpenGLES20Renderer.mdX = 0.0f;
 				HelloOpenGLES20Renderer.mdY = 0.0f;
 				HelloOpenGLES20Renderer.pan = true;
-				mGLView.requestRender();
+//				mGLView.requestRender();
 			}
 		});
 
@@ -486,7 +408,7 @@ public class GREX3DActivity extends Activity implements SensorEventListener {
 				HelloOpenGLES20Renderer.mAngleX = 0.0f;
 				HelloOpenGLES20Renderer.mAngleY = 0.0f;
 				HelloOpenGLES20Renderer.pan = false;
-				mGLView.requestRender();
+//				mGLView.requestRender();
 			}
 		});
 
@@ -495,8 +417,8 @@ public class GREX3DActivity extends Activity implements SensorEventListener {
 
 		myZoomBar = new VerticalSeekBar(this);
 		myZoomBar.setVisibility(VerticalSeekBar.INVISIBLE);
-		myZoomBar.setMax(100);
-		myZoomBar.setProgress(100);
+		myZoomBar.setMax((int) HelloOpenGLES20Renderer.xExtent);
+		myZoomBar.setProgress(myZoomBar.getMax());
 		myZoomBar.setOnSeekBarChangeListener(myZoomBarOnSeekBarChangeListener);
 		RelativeLayout.LayoutParams zoomBarParams = new RelativeLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
@@ -518,25 +440,65 @@ public class GREX3DActivity extends Activity implements SensorEventListener {
 
 	}
 
-	protected void setARprefs() {
+	protected static void setARprefs() {
 		AR = true;
-		manager.requestLocationUpdates(providerName, 0, 0, listener);
+		
+//		manager.requestLocationUpdates(providerName, 0, 0, listener);
 		HelloOpenGLES20Renderer.AR = true;
+		HelloOpenGLES20Renderer.XX = HelloOpenGLES20Renderer.xExtent;
 		b1.setVisibility(Button.INVISIBLE);
 		b2.setVisibility(Button.INVISIBLE);
 		s1.setChecked(true);
-//		mCamera = Camera.open();
-//		cameraCurrentlyLocked = defaultCameraId;
-//		mPreview.setCamera(mCamera);
 		mPreview.mSurfaceView.setVisibility(SurfaceView.VISIBLE);
 		myZoomBar.setVisibility(VerticalSeekBar.VISIBLE);
-		myZoomBar.setMax(100);
-		myZoomBar.setProgress(100);
+		myZoomBar.setMax((int) HelloOpenGLES20Renderer.xExtent);
+		myZoomBar.setProgress(myZoomBar.getMax());
 		myZoomBar.setEnabled(false);
-		mSensorManager.registerListener(GREX3DActivity.this,
-				mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
-				SensorManager.SENSOR_DELAY_FASTEST);
+		try {
+			mSensorManager.registerListener(GREX3DActivity.class.newInstance(),
+					mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
+					SensorManager.SENSOR_DELAY_FASTEST);
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		InterpolateCoordinates();
+//		Log.d("dx", Float.toString((float) (3492595.0 - connect3D.correctx)));
+//		Log.d("dy", Float.toString((float) (5341589.0 - connect3D.correcty)));
+//		Log.d("dz", Float.toString((float) (1000.0 - connect3D.correctz)));
+//		HelloOpenGLES20Renderer.eyeX = (float) (3492595.0 - connect3D.correctx);
+//		HelloOpenGLES20Renderer.eyeY = (float) (5341589.0 - connect3D.correcty);
+//		HelloOpenGLES20Renderer.eyeZ = (float) (1000.0 - connect3D.correctz);
+//		mGLView.setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 		
+	}
+	
+	public static void InterpolateCoordinates() {
+		// TODO Auto-generated method stub
+		double x0 = connect3D.getMinX() + connect3D.getCorrectx();
+		double y0 = connect3D.getMinY() + connect3D.getCorrecty();
+		double x1 = connect3D.getMaxX() + connect3D.getCorrectx();
+		double y1 = connect3D.getMaxY() + connect3D.getCorrecty();
+		
+		double dy = y1-y0;
+//		Log.d("dy", Double.toString(dy));
+		double dx = x1-x0;
+		double m = dy/dx;
+		double t = y1 - m*x1;
+		double x = x0;
+		for (float y = (float) y0; y<=y1; y= y+0.3f) {
+			
+			x = (y-t)/m;
+			Log.d("dx", Float.toString((float) (x - connect3D.getCorrectx())));
+			Log.d("dy", Float.toString((float) (y - connect3D.getCorrecty())));
+			Log.d("dz", Float.toString((float) (1080.0 - connect3D.getCorrectz())));
+			
+			
+			HelloOpenGLES20Renderer.eyeX = (float) (x - connect3D.getCorrectx());
+			HelloOpenGLES20Renderer.eyeY = (float) (y - connect3D.getCorrecty());
+			HelloOpenGLES20Renderer.eyeZ = (float) (1080.0 - connect3D.getCorrectz());
+		}						
 	}
 
 	public void initListeners() {
@@ -555,7 +517,7 @@ public class GREX3DActivity extends Activity implements SensorEventListener {
 		SensorManager.getRotationMatrixFromVector(RotMat, event.values);
 		SensorManager.remapCoordinateSystem(RotMat, SensorManager.AXIS_Y,
 				SensorManager.AXIS_MINUS_X, RotMat);
-		mGLView.requestRender();
+//		mGLView.requestRender();
 
 	}
 
@@ -575,5 +537,21 @@ public class GREX3DActivity extends Activity implements SensorEventListener {
 			// camScreen.invalidate();
 		}
 	};
+
+	public static void removeLocUpdates() {
+		// TODO Auto-generated method stub
+		manager.removeUpdates(listener);
+	}
+
+	public static void listenToLocUpdates() {
+		// TODO Auto-generated method stub
+		manager.requestLocationUpdates(providerName, 0, 0, listener);
+//		Log.d("dx", Float.toString((float) (3492595.0 - connect3D.correctx)));
+//		Log.d("dy", Float.toString((float) (5341589.0 - connect3D.correcty)));
+//		Log.d("dz", Float.toString((float) (1000.0 - connect3D.correctz)));
+//		HelloOpenGLES20Renderer.eyeX = (float) (3492595.0 - connect3D.correctx);
+//		HelloOpenGLES20Renderer.eyeY = (float) (5341589.0 - connect3D.correcty);
+//		HelloOpenGLES20Renderer.eyeZ = (float) (1000.0 - connect3D.correctz);
+	}
 
 }

@@ -34,8 +34,10 @@ public class FeatureTypeSelectionActivity extends ListActivity {
 
 	private static final String ROW_ID_1 = "NAME";
 	private static final String ROW_ID_2 = "TITLE";
+	private static final String ROW_ID_3 = "SRS";
 	private static final String SEARCH_TAG_GETFEATURE = "gml:posList";
 	private static final String SEARCH_TAG_DESCRIBE = "element";
+//	private static int crs = 0;
 	public static String serviceResponse;
 	
 	public static ProgressBar progressBar;
@@ -50,7 +52,7 @@ public class FeatureTypeSelectionActivity extends ListActivity {
 
 		adapter = new SimpleAdapter(this, fillMaps,
 				android.R.layout.simple_list_item_2, new String[] { ROW_ID_1,
-				ROW_ID_2 }, new int[] { android.R.id.text1,
+				 ROW_ID_3 }, new int[] { android.R.id.text1,
 				android.R.id.text2 });
 
 		setListAdapter(adapter);
@@ -83,10 +85,12 @@ public class FeatureTypeSelectionActivity extends ListActivity {
 
 	private List<HashMap<String, String>> prepareData4List() {
 		List<HashMap<String, String>> fillMaps = new ArrayList<HashMap<String, String>>();
-		for (String entry : intentData) {
+		for (int i = 0; i < intentData.length; i = i + 2) {
 			HashMap<String, String> map = new HashMap<String, String>();
-			map.put(ROW_ID_1, entry);
-			map.put(ROW_ID_2, entry.split(":")[1]);
+			map.put(ROW_ID_1, intentData[i]);
+			//map.put(ROW_ID_2, intentData[i].split(":")[1]);
+			GREX3DActivity.epsg = Integer.parseInt(intentData[i+1].split("crs:")[1]);
+			map.put(ROW_ID_3, intentData[i+1].split("crs:")[1]);
 			fillMaps.add(map);
 		}
 		return fillMaps;
@@ -96,7 +100,7 @@ public class FeatureTypeSelectionActivity extends ListActivity {
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			intentData = extras
-					.getStringArray(WFSSelectionActivity.FEATURE_TYPES);
+					.getStringArray(WFSSelectionActivity.FEATURE_TYPE_INFOS);
 			return intentData;
 		} else {
 			return null;

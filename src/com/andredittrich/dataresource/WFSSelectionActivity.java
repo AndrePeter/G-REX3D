@@ -2,6 +2,8 @@ package com.andredittrich.dataresource;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -58,7 +60,7 @@ public class WFSSelectionActivity extends ListActivity {
 	 * String to hold the name of the intent data passed on to the called
 	 * activity
 	 */
-	public static final String FEATURE_TYPES = "FEATURETYPES";
+	public static final String FEATURE_TYPE_INFOS = "FEATURETYPEINFOS";
 
 	/**
 	 * String to hold the base URL of the chosen web feature service
@@ -212,6 +214,7 @@ public class WFSSelectionActivity extends ListActivity {
 		@Override
 		protected ArrayList<String> doInBackground(String... urls) {
 			ArrayList<String> response = null;
+//			HashMap<String, String> response = null;
 			for (String url : urls) {
 				DefaultHttpClient client = new DefaultHttpClient();
 				HttpGet httpGet = new HttpGet(url);
@@ -221,14 +224,15 @@ public class WFSSelectionActivity extends ListActivity {
 					//
 					XMLReader xr = sp.getXMLReader();
 					//
-					XMLHandler Handler = new XMLHandler(
-							getString(R.string.FEATURE_TYPE_TAG));
+					XMLHandler Handler = new XMLHandler(new String[]{
+							getString(R.string.FEATURE_TYPE_TAG), getString(R.string.SRS_TAG)});
 					xr.setContentHandler(Handler);
 					HttpResponse execute = client.execute(httpGet);
 					InputStream content = execute.getEntity().getContent();
 					InputSource inSource = new InputSource(content);
 					xr.parse(inSource);
 					response = Handler.data;
+//					response = Handler.data1;
 
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -244,11 +248,9 @@ public class WFSSelectionActivity extends ListActivity {
 				serviceResponse[i] = result.get(i);
 			}
 
-			Log.d("length", Integer.toString(serviceResponse.length));
-
 			Intent intent = new Intent(WFSSelectionActivity.this,
 					FeatureTypeSelectionActivity.class);
-			intent.putExtra(FEATURE_TYPES, serviceResponse);
+			intent.putExtra(FEATURE_TYPE_INFOS, serviceResponse);
 			startActivity(intent);
 		}
 	}

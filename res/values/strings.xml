@@ -41,6 +41,7 @@
     <string name="HTTP">http://</string>
     <string name="DIALOG_ADDWFS">DIALOG_ADDWFS</string>
     <string name="FEATURE_TYPE_TAG">Name</string>
+    <string name="SRS_TAG">DefaultSRS</string>
     <string name="DELETED">deleted</string>
     <string name="FAILED">failed</string>
     <string name="KVP_Separator">&amp;</string>

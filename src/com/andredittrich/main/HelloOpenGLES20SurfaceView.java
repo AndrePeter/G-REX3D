@@ -6,6 +6,7 @@ import android.opengl.GLSurfaceView;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.SurfaceView;
 
 class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 
@@ -49,7 +50,7 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 		getHolder().setFormat(PixelFormat.TRANSLUCENT);
 //		getHolder().setFormat(PixelFormat.TRANSLUCENT);		
 		// Render the view only when there is a change
-		setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);//.RENDERMODE_WHEN_DIRTY);
+		setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
 	}
 	
 	
@@ -64,14 +65,19 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 	        final int action = event.getAction();
 	        switch (action & MotionEvent.ACTION_MASK) {
 	        case MotionEvent.ACTION_DOWN: {
-	        	GREX3DActivity.myZoomBar.setEnabled(false);
+	        	if (mRenderer.AR) {
+	        		GREX3DActivity.setARprefs();
+//	        		GREX3DActivity.myZoomBar.setEnabled(false);
+//		        	GREX3DActivity.mPreview.mSurfaceView.setVisibility(SurfaceView.VISIBLE);
+//		        	GREX3DActivity.listenToLocUpdates();
+		        	
+	        	}
+	        	
 	            final float x = event.getX();
 	            final float y = event.getY();
                 
 	            xstart = x;
 	            ystart = y;
-//	            Log.d("yDown",Float.toString(ystart));
-//	            Log.d("xDown",Float.toString(xstart));
 	            mActivePointerId = event.getPointerId(0);
 	            break;
 	        }
@@ -80,46 +86,16 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 	            final int pointerIndex = event.findPointerIndex(mActivePointerId);
 	            final float x = event.getX(pointerIndex);
 	            final float y = event.getY(pointerIndex);
-//	            Log.d("yMove",Float.toString(y));
-//	            Log.d("xMove",Float.toString(x));
 	            // Only move if the ScaleGestureDetector isn't processing a gesture.
 	            if (!mScaleDetector.isInProgress()) {
 	                float dx = x - xstart;
 	                float dy = y - ystart;
-//	                // reverse direction of rotation above the mid-line
-//                if (y > getHeight() / 2) {
-//                  dx = dx * -1 ;
-//                }
-//    
-//                // reverse direction of rotation to left of the mid-line
-//                if (x < getWidth() / 2) {
-//                  dy = dy * -1 ;
-//                }
-//              
-                mRenderer.mAngleY += dy * TOUCH_SCALE_FACTOR;
-                mRenderer.mAngleX += dx * TOUCH_SCALE_FACTOR;
+                HelloOpenGLES20Renderer.mAngleY += dy * TOUCH_SCALE_FACTOR;
+                HelloOpenGLES20Renderer.mAngleX += dx * TOUCH_SCALE_FACTOR;
                 
-               	                
-//	                float realx = (1.21f)*dx/(mRenderer.mHeight/2);
-//	                float realy = (1.21f)*dy/(mRenderer.mHeight/2);
-//	                
-//	                Log.d("realdy", Float.toString(realy));
-//	                Log.d("realdx", Float.toString(realx));
-	                
-//	                mRenderer.mdX += realx;
-//	                mRenderer.mdY += realy;
-	                mRenderer.mdX += (dx/mDensity/2.5f) * 0.008* HelloOpenGLES20Renderer.xExtent;
-	                mRenderer.mdY += (dy/mDensity/2.5f) * 0.008* HelloOpenGLES20Renderer.xExtent;
-	                
-	                
-//	                ysum += dy;
-//	                yrealsum += realy;
-//	                Log.d("ysum",Float.toString(ysum));
-//	                Log.d("yrealsum",Float.toString(yrealsum));
-//	                xsum += dx;
-//	                xrealsum += realx;
-//	                Log.d("xsum",Float.toString(xsum));
-//	                Log.d("xrealsum",Float.toString(xrealsum));
+	                HelloOpenGLES20Renderer.mdX += (dx/mDensity/2.5f) * 0.008* HelloOpenGLES20Renderer.xExtent;
+	                HelloOpenGLES20Renderer.mdY += (dy/mDensity/2.5f) * 0.008* HelloOpenGLES20Renderer.xExtent;
+	               
 	            }
 	            requestRender();
 	            xstart = x;
@@ -171,7 +147,7 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
             
             // Don't let the object get too small or too large.
 //            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
-            mRenderer.scale = mScaleFactor;
+            HelloOpenGLES20Renderer.scale = mScaleFactor;
             requestRender();
             return true;
         	} else {

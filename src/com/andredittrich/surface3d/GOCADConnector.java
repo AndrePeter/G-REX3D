@@ -109,6 +109,9 @@ public class GOCADConnector {
 		correctx = (maxX + minX) / 2;
 		correcty = (maxY + minY) / 2;
 		correctz = (maxZ + minZ) / 2;
+		Log.d("x ",Float.toString(correctx));
+		Log.d("y ",Float.toString(correcty));
+		Log.d("z ",Float.toString(correctz));
 
 		maxX -= correctx;
 		maxY -= correcty;
@@ -124,6 +127,30 @@ public class GOCADConnector {
 		 * return the TSObjects
 		 */
 		return tsObject;
+	}
+
+	public float getCorrectx() {
+		return correctx;
+	}
+
+	public void setCorrectx(float correctx) {
+		this.correctx = correctx;
+	}
+
+	public float getCorrecty() {
+		return correcty;
+	}
+
+	public void setCorrecty(float correcty) {
+		this.correcty = correcty;
+	}
+
+	public float getCorrectz() {
+		return correctz;
+	}
+
+	public void setCorrectz(float correctz) {
+		this.correctz = correctz;
 	}
 
 	/**

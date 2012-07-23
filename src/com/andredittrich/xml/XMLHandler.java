@@ -1,6 +1,8 @@
 package com.andredittrich.xml;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 import org.xml.sax.Attributes;
@@ -14,12 +16,16 @@ public class XMLHandler extends DefaultHandler {
 	public String elementValue = null;
 	Boolean elementOn = false;
 	public String searchTag;
+	public String currentName;
+	public List<String> searchTags;
 	public ArrayList<String> data = new ArrayList<String>();
+	public HashMap<String,String> data1 = new HashMap<String,String>();
 
 	
-	public XMLHandler(String tag) {
+	public XMLHandler(String[] tags) {
 		// TODO Auto-generated constructor stub
-		searchTag = tag;
+		searchTags = Arrays.asList(tags);		
+//		searchTag = tag;
 	}
 	/**
 	 * This will be called when the tags of the XML starts.
@@ -28,8 +34,11 @@ public class XMLHandler extends DefaultHandler {
 	public void startElement(String uri, String localName, String qName,
 			Attributes attributes) throws SAXException {
 
-		if (qName.equals(searchTag)) {
-			elementOn = true;
+//		if (qName.equals(searchTag)) {			
+//			elementOn = true;
+//		}
+		if (searchTags.contains(qName)) {
+			elementOn = true;			
 		}
 		
 //		if (qName.equals("gml:coordinates")) {
@@ -59,6 +68,7 @@ public class XMLHandler extends DefaultHandler {
 			elementOn = false;
 			if (elementValue != null) {
 				data.add(elementValue);
+				Log.d("elementValue ", elementValue);
 			}
 			
 		}

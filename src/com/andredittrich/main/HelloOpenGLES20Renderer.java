@@ -25,6 +25,7 @@ public class HelloOpenGLES20Renderer implements Renderer {
 	public static float mdY;
 	public static float mdX;
 	public static float scale = 1.f;
+	public static float XX = 0.0f;
 	private int muMVPMatrixHandle;
 	private int PuMVPMatrixHandle;
 
@@ -33,6 +34,8 @@ public class HelloOpenGLES20Renderer implements Renderer {
 	private float[] mMMatrix = new float[16];
 	private float[] mVMatrix = new float[16];
 	private float[] mProjMatrix = new float[16];
+	
+	private float[] RotmMMatrix = new float[16];
 	/**
 	 * Stores a copy of the model matrix specifically for the light position.
 	 */
@@ -51,6 +54,9 @@ public class HelloOpenGLES20Renderer implements Renderer {
 	private final float[] mCurrentTranslation = new float[16];
 
 	private final float[] mTemporaryMatrix = new float[16];
+	
+	float[] eyeVector = new float[4];
+	float[] neweyeVector = new float[4];
 	private OGLLayer layer;
 
 	private int mNormalHandle;
@@ -220,6 +226,7 @@ public class HelloOpenGLES20Renderer implements Renderer {
 		layer = GREX3DActivity.tsobj;
 		
 		eyeZ = xExtent;
+		XX = xExtent;
 //		initShapes();
 
 //		// Define a simple shader program for our point.
@@ -301,7 +308,7 @@ public class HelloOpenGLES20Renderer implements Renderer {
 
 		// Check for INTERACTIVE or AUGMENTED REALITY mode
 		if (!AR) {
-			
+//			Log.e("AR", "NO");
 			// Set eye point to standard
 			Matrix.setLookAtM(mVMatrix, 0, 0, 0, xExtent, 0f, 0f, 0f, 0f, 1.0f,
 					0.0f);
@@ -320,14 +327,27 @@ public class HelloOpenGLES20Renderer implements Renderer {
 			// Scale the scene
 			Matrix.scaleM(mMMatrix, 0, scale, scale, scale);
 		} else {
+//			Log.e("AR", "YES");
 			// Use rotation matrix of device orientation sensors as ModelMatrix
 			mMMatrix = GREX3DActivity.RotMat;
-
+//			Matrix.setIdentityM(mMMatrix, 0);
+//			
+			eyeVector = new float[] {eyeX, eyeY, eyeZ,1.f};
+//			Matrix.invertM(RotmMMatrix, 0, mMMatrix, 0);
+			Matrix.multiplyMV(neweyeVector, 0, GREX3DActivity.RotMat, 0, eyeVector, 0);
+//			Matrix.setLookAtM(mVMatrix, 0, 0, 0, XX, myNy[0], myNy[1], 0f, 0f,
+//					1.0f, 0.0f);
 			float[] myNy = calcViewCenter();
-			Matrix.setLookAtM(mVMatrix, 0, 0, 0, xExtent, myNy[0], myNy[1], 0f, 0f,
-					1.0f, 0.0f);
-			// Matrix.setLookAtM(mVMatrix, 0, eyeX, eyeY, eyeZ, myNy[0], myNy[1], 0f, 0f,
-			// 1.0f, 0.0f);		
+//			eyeX = neweyeVector[0];
+//			eyeY = neweyeVector[1];
+//			eyeZ = neweyeVector[2];
+			
+//			Matrix.setLookAtM(mVMatrix, 0, 0, 0, XX, myNy[0], myNy[1], 0f, 0f,
+//					 1.0f, 0.0f);
+			Matrix.setLookAtM(mVMatrix, 0, neweyeVector[0], neweyeVector[1], neweyeVector[2], myNy[0], myNy[1], 0f, 0f,
+					 1.0f, 0.0f);	
+//			 Matrix.setLookAtM(mVMatrix, 0, eyeX, eyeY, eyeZ, myNy[0], myNy[1], 0f, 0f,
+//			 1.0f, 0.0f);		
 		}
 
 		// Combine ModelMatrix and ViewMatrix 
@@ -384,13 +404,13 @@ public class HelloOpenGLES20Renderer implements Renderer {
 		startVec[2] = -1f;
 		startVec[3] = 1f;
 		Matrix.multiplyMV(oriVec, 0, mMMatrix, 0, startVec, 0);
-		float lambda = xExtent / oriVec[2];
-		float my = lambda * oriVec[0];
-		float ny = lambda * oriVec[1];
+//		float lambda = xExtent / oriVec[2];
+//		float my = lambda * oriVec[0];
+//		float ny = lambda * oriVec[1];
 		
-		// float lambda = eyeZ/ oriVec[2];
-		// float my = eyeX + lambda*oriVec[0];
-		// float ny = eyeY + lambda*oriVec[1];
+		 float lambda = neweyeVector[2]/ oriVec[2];
+		 float my = neweyeVector[0] + lambda*oriVec[0];
+		 float ny = neweyeVector[1] + lambda*oriVec[1];
 		
 		return new float[] {my, ny};
 	}
