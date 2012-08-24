@@ -22,6 +22,7 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 
+import com.andredittrich.main.ARActivity;
 import com.andredittrich.main.GREX3DActivity;
 
 public class FeatureTypeSelectionActivity extends ListActivity {
@@ -89,7 +90,7 @@ public class FeatureTypeSelectionActivity extends ListActivity {
 			HashMap<String, String> map = new HashMap<String, String>();
 			map.put(ROW_ID_1, intentData[i]);
 			//map.put(ROW_ID_2, intentData[i].split(":")[1]);
-			GREX3DActivity.epsg = Integer.parseInt(intentData[i+1].split("crs:")[1]);
+			ARActivity.epsg = Integer.parseInt(intentData[i+1].split("EPSG:")[1]);
 			map.put(ROW_ID_3, intentData[i+1].split("crs:")[1]);
 			fillMaps.add(map);
 		}

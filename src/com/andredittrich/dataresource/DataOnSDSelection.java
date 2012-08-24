@@ -10,6 +10,7 @@ import java.util.List;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -56,10 +57,7 @@ public class DataOnSDSelection extends ListActivity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		dataPath = ResourceSelectionActivity.ROOT_DIRECTORY
-		+ File.separator
-		 +
-		 getString(R.string.DataFolder);
+		dataPath = Environment.getExternalStorageDirectory().getAbsolutePath();
 		searchTSFiles();
 
 		prepareData4List();
@@ -68,9 +66,7 @@ public class DataOnSDSelection extends ListActivity {
 		setListAdapter(adapter);
 
 		setContentView(R.layout.listtsfiles);
-		// progressBar = (ProgressBar)
-		// findViewById(R.id.progressbar_Horizontal);
-		// progressBar.setProgress(0);
+		
 		registerForContextMenu(getListView());
 	}
 
@@ -84,6 +80,7 @@ public class DataOnSDSelection extends ListActivity {
 		Log.d("data", dir.toString());
 		FilenameFilter filter = new FileListFilter(null, new String[] {"ts"});
 		files = dir.listFiles(filter);
+		Log.d("wq", files.toString());
 		if (files.length == 0) {
 			Toast.makeText(this, R.string.NoData, Toast.LENGTH_LONG).show();
 			finish();
@@ -104,8 +101,21 @@ public class DataOnSDSelection extends ListActivity {
 		for (File file : files) {
 			HashMap<String, String> map = new HashMap<String, String>();
 			map.put(getString(R.string.FileName), file.getName());
-			map.put(getString(R.string.FileSize), Long.toString(file.length())
-					+ " Bytes");
+			
+			if (file.length() < 1024) {
+				map.put(getString(R.string.FileSize),
+						Long.toString(file.length()) + " Bytes");
+			} else if (file.length() >= 1024
+					&& file.length() < Math.pow(1024., 2)) {
+				map.put(getString(R.string.FileSize),
+						Float.toString((float) (file.length() / 1024.)) + " KB");
+			} else if (file.length() >= Math.pow(1024., 2)
+					&& file.length() < Math.pow(1024., 3)) {
+				map.put(getString(R.string.FileSize),
+						Float.toString((float) (file.length() / Math
+								.pow(1024., 2))) + " MB");
+			}
+
 			fillMaps.add(map);
 		}
 	}
@@ -143,7 +153,7 @@ public class DataOnSDSelection extends ListActivity {
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
-		// Kontextmenü entfalten
+		// Kontextmenï¿½ entfalten
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.ts_context_menu, menu);
 	}

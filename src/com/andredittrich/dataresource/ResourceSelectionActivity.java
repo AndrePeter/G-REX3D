@@ -7,6 +7,7 @@ import android.os.Environment;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.Toast;
 
 public class ResourceSelectionActivity extends Activity {
 
@@ -33,9 +34,14 @@ public class ResourceSelectionActivity extends Activity {
 		sdcard.setOnClickListener(new OnClickListener() {
 
 			public void onClick(View v) {
-				Intent intent = new Intent(ResourceSelectionActivity.this,
-						DataOnSDSelection.class);
-				startActivity(intent);
+				String extState = Environment.getExternalStorageState();
+				if(!extState.equals(Environment.MEDIA_MOUNTED)) {
+					Toast.makeText(ResourceSelectionActivity.this, "No SD Card mounted!", Toast.LENGTH_SHORT).show();
+				} else {
+					Intent intent = new Intent(ResourceSelectionActivity.this,
+							DataOnSDSelection.class);
+					startActivity(intent);
+				}				
 			}
 		});
 

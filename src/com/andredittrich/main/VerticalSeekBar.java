@@ -63,9 +63,13 @@ public class VerticalSeekBar extends SeekBar {
      */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+    	ARActivity.removeLocUpdates();
     	setEnabled(true);
-    	GREX3DActivity.mPreview.mSurfaceView.setVisibility(SurfaceView.INVISIBLE);
-    	GREX3DActivity.removeLocUpdates();
+    	ARActivity.mPreview.mSurfaceView.setVisibility(SurfaceView.INVISIBLE);
+    	
+    	Log.d("eventy", Float.toString(event.getY()));
+    	Log.d("getmax", Float.toString(getMax()));
+    	
 //        if (!isEnabled()) {
 //            return false;
 //        }
@@ -75,8 +79,9 @@ public class VerticalSeekBar extends SeekBar {
         case MotionEvent.ACTION_MOVE:
         case MotionEvent.ACTION_UP:
             setProgress(getMax() - (int) (getMax() * event.getY() / getHeight()));
-            HelloOpenGLES20Renderer.eyeZ = getMax() - (int) (getMax() * event.getY() / getHeight());
-            HelloOpenGLES20Renderer.XX = getMax() - (int) (getMax() * event.getY() / getHeight());
+            ARRenderer.eyeZ = getMax() - (int) (getMax() * event.getY() / getHeight());
+            Log.d("eye", Float.toString(ARRenderer.eyeZ));
+            ARRenderer.XX = getMax() - (int) (getMax() * event.getY() / getHeight());
 //            Log.d("WERT", Float.toString(HelloOpenGLES20Renderer.eyeZ));
             onSizeChanged(getWidth(), getHeight(), 0, 0);
             

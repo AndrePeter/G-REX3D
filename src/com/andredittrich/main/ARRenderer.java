@@ -10,21 +10,13 @@ import android.util.Log;
 
 import com.andredittrich.surface3d.OGLLayer;
 
-public class HelloOpenGLES20Renderer implements Renderer {
+public class ARRenderer implements Renderer {
 
-	public static boolean AR = false;
-	protected static boolean pan = false;
+public static final boolean ZoomDown = false;
 	public static float xExtent;
-//	public static float yExtent;
-//	public static float zExtent;
 	public static float eyeX = 0.0f;
 	public static float eyeY = 0.0f;
 	public static float eyeZ = 0.0f;
-	public static float mAngleY = 1f;
-	public static float mAngleX = 1f;
-	public static float mdY;
-	public static float mdX;
-	public static float scale = 1.f;
 	public static float XX = 0.0f;
 	private int muMVPMatrixHandle;
 	private int PuMVPMatrixHandle;
@@ -35,7 +27,7 @@ public class HelloOpenGLES20Renderer implements Renderer {
 	private float[] mVMatrix = new float[16];
 	private float[] mProjMatrix = new float[16];
 	
-	private float[] RotmMMatrix = new float[16];
+//	private float[] RotmMMatrix = new float[16];
 	/**
 	 * Stores a copy of the model matrix specifically for the light position.
 	 */
@@ -47,11 +39,11 @@ public class HelloOpenGLES20Renderer implements Renderer {
 	/** Store the accumulated rotation. */
 	private final float[] mAccumulatedTranslation = new float[16];
 
-	/** Store the current rotation. */
-	private final float[] mCurrentRotation = new float[16];
-
-	/** Store the current rotation. */
-	private final float[] mCurrentTranslation = new float[16];
+//	/** Store the current rotation. */
+//	private final float[] mCurrentRotation = new float[16];
+//
+//	/** Store the current rotation. */
+//	private final float[] mCurrentTranslation = new float[16];
 
 	private final float[] mTemporaryMatrix = new float[16];
 	
@@ -223,7 +215,7 @@ public class HelloOpenGLES20Renderer implements Renderer {
 		GLES20.glEnable(GLES20.GL_BLEND_SRC_ALPHA);
 
 		// Initialize geometry
-		layer = GREX3DActivity.tsobj;
+		layer = ARActivity.tsobj;
 		
 		eyeZ = xExtent;
 		XX = xExtent;
@@ -307,34 +299,16 @@ public class HelloOpenGLES20Renderer implements Renderer {
 				false, 0, layer.getVertexBuffer());
 
 		// Check for INTERACTIVE or AUGMENTED REALITY mode
-		if (!AR) {
-//			Log.e("AR", "NO");
-			// Set eye point to standard
-			Matrix.setLookAtM(mVMatrix, 0, 0, 0, xExtent, 0f, 0f, 0f, 0f, 1.0f,
-					0.0f);
-			
-			// Reset matrices to identity
-			Matrix.setIdentityM(mMMatrix, 0);
-			Matrix.setIdentityM(mCurrentRotation, 0);
-			Matrix.setIdentityM(mCurrentTranslation, 0);
-
-			// Check if user is panning or rotating
-			if (pan) {				
-				panScene();
-			} else {
-				rotateScene();				
-			}
-			// Scale the scene
-			Matrix.scaleM(mMMatrix, 0, scale, scale, scale);
-		} else {
+		
 //			Log.e("AR", "YES");
 			// Use rotation matrix of device orientation sensors as ModelMatrix
-			mMMatrix = GREX3DActivity.RotMat;
+//			Matrix.invertM(mMMatrix, 0, GREX3DActivity.RotMat, 0);
+			mMMatrix = ARActivity.RotMat;
 //			Matrix.setIdentityM(mMMatrix, 0);
 //			
 			eyeVector = new float[] {eyeX, eyeY, eyeZ,1.f};
-//			Matrix.invertM(RotmMMatrix, 0, mMMatrix, 0);
-			Matrix.multiplyMV(neweyeVector, 0, GREX3DActivity.RotMat, 0, eyeVector, 0);
+			
+			Matrix.multiplyMV(neweyeVector, 0, mMMatrix, 0, eyeVector, 0);
 //			Matrix.setLookAtM(mVMatrix, 0, 0, 0, XX, myNy[0], myNy[1], 0f, 0f,
 //					1.0f, 0.0f);
 			float[] myNy = calcViewCenter();
@@ -348,7 +322,8 @@ public class HelloOpenGLES20Renderer implements Renderer {
 					 1.0f, 0.0f);	
 //			 Matrix.setLookAtM(mVMatrix, 0, eyeX, eyeY, eyeZ, myNy[0], myNy[1], 0f, 0f,
 //			 1.0f, 0.0f);		
-		}
+//			Matrix.transposeM(mMMatrix, 0, GREX3DActivity.RotMat, 0);
+		
 
 		// Combine ModelMatrix and ViewMatrix 
 		Matrix.multiplyMM(mMVPLMatrix, 0, mVMatrix, 0, mMMatrix, 0);
@@ -413,47 +388,6 @@ public class HelloOpenGLES20Renderer implements Renderer {
 		 float ny = neweyeVector[1] + lambda*oriVec[1];
 		
 		return new float[] {my, ny};
-	}
-
-	private void rotateScene() {
-		Matrix.rotateM(mCurrentRotation, 0, mAngleX, 0.0f, 1.0f, 0.0f);
-		Matrix.rotateM(mCurrentRotation, 0, mAngleY, 1.0f, 0.0f, 0.0f);
-		mAngleX = 0.0f;
-		mAngleY = 0.0f;
-
-		Matrix.multiplyMM(mTemporaryMatrix, 0, mAccumulatedTranslation,
-				0, mMMatrix, 0);
-		System.arraycopy(mTemporaryMatrix, 0, mMMatrix, 0, 16);
-
-		Matrix.multiplyMM(mTemporaryMatrix, 0, mCurrentRotation, 0,
-				mAccumulatedRotation, 0);
-		System.arraycopy(mTemporaryMatrix, 0, mAccumulatedRotation, 0,
-				16);
-
-		// Rotate the cube taking the overall rotation into account.
-		Matrix.multiplyMM(mTemporaryMatrix, 0, mMMatrix, 0,
-				mAccumulatedRotation, 0);
-		System.arraycopy(mTemporaryMatrix, 0, mMMatrix, 0, 16);
-		
-	}
-
-	private void panScene() {
-		Matrix.translateM(mCurrentTranslation, 0, mdX, -mdY, 0);
-		mdX = 0;
-		mdY = 0;
-		Matrix.multiplyMM(mTemporaryMatrix, 0, mCurrentTranslation, 0,
-				mAccumulatedTranslation, 0);
-		System.arraycopy(mTemporaryMatrix, 0, mAccumulatedTranslation,
-				0, 16);
-
-		Matrix.multiplyMM(mTemporaryMatrix, 0, mMMatrix, 0,
-				mAccumulatedTranslation, 0);
-		System.arraycopy(mTemporaryMatrix, 0, mMMatrix, 0, 16);
-
-		Matrix.multiplyMM(mTemporaryMatrix, 0, mMMatrix, 0,
-				mAccumulatedRotation, 0);
-		System.arraycopy(mTemporaryMatrix, 0, mMMatrix, 0, 16);
-		
 	}
 
 	private void drawPoints() {

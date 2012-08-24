@@ -8,16 +8,16 @@ import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.SurfaceView;
 
-class HelloOpenGLES20SurfaceView extends GLSurfaceView {
+class InteractiveSurfaceView extends GLSurfaceView {
 
 	private static final int INVALID_POINTER_ID = -1;
-    // The ‘active pointer’ is the one currently moving our object.
+    // The ï¿½active pointerï¿½ is the one currently moving our object.
     private int mActivePointerId = INVALID_POINTER_ID;
    
     private ScaleGestureDetector mScaleDetector;
     private float mScaleFactor = 1.f;
 	private final float TOUCH_SCALE_FACTOR = 180.0f / 360;
-    private HelloOpenGLES20Renderer mRenderer;
+    private InteractiveRenderer mRenderer;
     private float mPreviousX;
     private float mPreviousY;
 //    private float mdX;
@@ -32,7 +32,7 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
     public static float dy = 0;
     public static float dx = 0;
 	
-	public HelloOpenGLES20SurfaceView(Context context) {
+	public InteractiveSurfaceView(Context context) {
 		
 		super(context);
 
@@ -45,12 +45,12 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 		
 
 		// set the mRenderer member
-		mRenderer = new HelloOpenGLES20Renderer();
+		mRenderer = new InteractiveRenderer();
 		setRenderer(mRenderer);
 		getHolder().setFormat(PixelFormat.TRANSLUCENT);
 //		getHolder().setFormat(PixelFormat.TRANSLUCENT);		
 		// Render the view only when there is a change
-		setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+		setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 	}
 	
 	
@@ -65,13 +65,13 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 	        final int action = event.getAction();
 	        switch (action & MotionEvent.ACTION_MASK) {
 	        case MotionEvent.ACTION_DOWN: {
-	        	if (mRenderer.AR) {
-	        		GREX3DActivity.setARprefs();
-//	        		GREX3DActivity.myZoomBar.setEnabled(false);
-//		        	GREX3DActivity.mPreview.mSurfaceView.setVisibility(SurfaceView.VISIBLE);
-//		        	GREX3DActivity.listenToLocUpdates();
-		        	
-	        	}
+//	        	if (mRenderer.AR) {
+//	        		GREX3DActivity.setARprefs();
+////	        		GREX3DActivity.myZoomBar.setEnabled(false);
+////		        	GREX3DActivity.mPreview.mSurfaceView.setVisibility(SurfaceView.VISIBLE);
+////		        	GREX3DActivity.listenToLocUpdates();
+//		        	
+//	        	}
 	        	
 	            final float x = event.getX();
 	            final float y = event.getY();
@@ -90,11 +90,11 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 	            if (!mScaleDetector.isInProgress()) {
 	                float dx = x - xstart;
 	                float dy = y - ystart;
-                HelloOpenGLES20Renderer.mAngleY += dy * TOUCH_SCALE_FACTOR;
-                HelloOpenGLES20Renderer.mAngleX += dx * TOUCH_SCALE_FACTOR;
+                InteractiveRenderer.mAngleY += dy * TOUCH_SCALE_FACTOR;
+                InteractiveRenderer.mAngleX += dx * TOUCH_SCALE_FACTOR;
                 
-	                HelloOpenGLES20Renderer.mdX += (dx/mDensity/2.5f) * 0.008* HelloOpenGLES20Renderer.xExtent;
-	                HelloOpenGLES20Renderer.mdY += (dy/mDensity/2.5f) * 0.008* HelloOpenGLES20Renderer.xExtent;
+	                InteractiveRenderer.mdX += (dx/mDensity/2.5f) * 0.008* InteractiveRenderer.xExtent;
+	                InteractiveRenderer.mdY += (dy/mDensity/2.5f) * 0.008* InteractiveRenderer.xExtent;
 	               
 	            }
 	            requestRender();
@@ -142,20 +142,18 @@ class HelloOpenGLES20SurfaceView extends GLSurfaceView {
 	private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-        	if (!HelloOpenGLES20Renderer.AR) {
-            mScaleFactor *= detector.getScaleFactor();            
+        	
+            mScaleFactor *= detector.getScaleFactor();
             
             // Don't let the object get too small or too large.
 //            mScaleFactor = Math.max(0.1f, Math.min(mScaleFactor, 5.0f));
-            HelloOpenGLES20Renderer.scale = mScaleFactor;
-            requestRender();
-            return true;
-        	} else {
-        		return false;
-        	}
-        	
+            InteractiveRenderer.scale = mScaleFactor;
+            Log.d("scaleFactor", Float.toString(mScaleFactor));
+           requestRender();
+            return true;        	
         }
     }
 
+	
 
 }

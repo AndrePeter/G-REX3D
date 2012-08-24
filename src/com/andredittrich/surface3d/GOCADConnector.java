@@ -28,7 +28,8 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import com.andredittrich.main.HelloOpenGLES20Renderer;
+import com.andredittrich.main.ARRenderer;
+import com.andredittrich.main.InteractiveRenderer;
 
 import android.graphics.Color;
 import android.util.Log;
@@ -155,7 +156,7 @@ public class GOCADConnector {
 
 	/**
 	 * Reads in a single TSObject. It assumes that a 'HEAD' already has been
-	 * read. Only fills LínkedLists of the OGLLayer so it is recommended to use
+	 * read. Only fills Lï¿½nkedLists of the OGLLayer so it is recommended to use
 	 * the convert method!
 	 * 
 	 * @param first
@@ -342,8 +343,9 @@ public class GOCADConnector {
 		// "File read complete, but no 'END' reached");
 		// }
 		
-		HelloOpenGLES20Renderer.xExtent = (maxX-minX);
-		Log.d("xExtent", Float.toString(HelloOpenGLES20Renderer.xExtent));
+		InteractiveRenderer.xExtent = (maxX-minX);
+		ARRenderer.xExtent = (maxX-minX);
+		Log.d("xExtent", Float.toString(InteractiveRenderer.xExtent));
 //		HelloOpenGLES20Renderer.yExtent = (maxY-minY);
 //		Log.d("yExtent", Float.toString(HelloOpenGLES20Renderer.yExtent));
 //		HelloOpenGLES20Renderer.zExtent = (maxZ-minZ);
