@@ -68,6 +68,7 @@ public final class R {
         public static final int FileSize=0x7f040017;
         public static final int HTTP=0x7f040019;
         public static final int KVP_Separator=0x7f04001f;
+        public static final int NOWEB=0x7f040023;
         public static final int NoData=0x7f040021;
         public static final int SDCard=0x7f040003;
         public static final int SRS_TAG=0x7f04001c;

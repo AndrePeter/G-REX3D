@@ -48,5 +48,6 @@
     <string name="DataFolder">data</string>
     <string name="NoData">no suitable data</string>
     <string name="Extensions">ts,xml</string>
+    <string name="NOWEB">No connection to network!</string>
     
 </resources>

@@ -17,9 +17,12 @@ import org.xml.sax.XMLReader;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -136,7 +139,15 @@ public class WFSSelectionActivity extends ListActivity {
 		Log.d("url", baseURL + getString(R.string.Capabilities)
 				+ getString(R.string.KVP_Separator)
 				+ getString(R.string.Version110));
-		readWebpage(l);
+		ConnectivityManager cm =
+		        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+		    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+		    	readWebpage(l);
+		    } else {
+		    	Toast.makeText(this, R.string.NOWEB, Toast.LENGTH_LONG).show();
+		    }
+		
 	}
 
 	protected Dialog onCreateDialog(int id) {
