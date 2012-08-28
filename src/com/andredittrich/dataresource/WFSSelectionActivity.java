@@ -25,6 +25,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -122,7 +123,7 @@ public class WFSSelectionActivity extends ListActivity {
 	}
 
 	private void updateList() {
-		// zunächst Cursor, dann Liste aktualisieren
+		// zunï¿½chst Cursor, dann Liste aktualisieren
 		mAdapter.getCursor().requery();
 		mAdapter.notifyDataSetChanged();
 	}
@@ -142,10 +143,12 @@ public class WFSSelectionActivity extends ListActivity {
 		ConnectivityManager cm =
 		        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+//		    Log.d("test", Boolean.toString(netInfo.isConnectedOrConnecting()));
 		    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
 		    	readWebpage(l);
 		    } else {
 		    	Toast.makeText(this, R.string.NOWEB, Toast.LENGTH_LONG).show();
+		    	startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
 		    }
 		
 	}
@@ -193,7 +196,7 @@ public class WFSSelectionActivity extends ListActivity {
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
 		super.onCreateContextMenu(menu, v, menuInfo);
-		// Kontextmenü entfalten
+		// Kontextmenï¿½ entfalten
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.wfs_context_menu, menu);
 	}
@@ -254,15 +257,21 @@ public class WFSSelectionActivity extends ListActivity {
 
 		@Override
 		protected void onPostExecute(ArrayList<String> result) {
-			serviceResponse = new String[result.size()];
-			for (int i = 0; i < result.size(); i++) {
-				serviceResponse[i] = result.get(i);
-			}
+			
 
-			Intent intent = new Intent(WFSSelectionActivity.this,
-					FeatureTypeSelectionActivity.class);
-			intent.putExtra(FEATURE_TYPE_INFOS, serviceResponse);
-			startActivity(intent);
+			if (result != null) {
+				serviceResponse = new String[result.size()];
+				for (int i = 0; i < result.size(); i++) {
+					serviceResponse[i] = result.get(i);
+				}
+				Intent intent = new Intent(WFSSelectionActivity.this,
+						FeatureTypeSelectionActivity.class);
+				intent.putExtra(FEATURE_TYPE_INFOS, serviceResponse);
+				startActivity(intent);
+			} else {
+				Toast.makeText(WFSSelectionActivity.this, R.string.NOWFS, Toast.LENGTH_LONG).show();
+			}
+			
 		}
 	}
 }

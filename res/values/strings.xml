@@ -49,5 +49,5 @@
     <string name="NoData">no suitable data</string>
     <string name="Extensions">ts,xml</string>
     <string name="NOWEB">No connection to network!</string>
-    
+	<string name="NOWFS">No WFS or WFS not online!</string>    
 </resources>
