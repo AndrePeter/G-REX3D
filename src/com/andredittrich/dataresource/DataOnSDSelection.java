@@ -112,8 +112,7 @@ public class DataOnSDSelection extends ListActivity {
 			} else if (file.length() >= Math.pow(1024., 2)
 					&& file.length() < Math.pow(1024., 3)) {
 				map.put(getString(R.string.FileSize),
-						Float.toString((float) (file.length() / Math
-								.pow(1024., 2))) + " MB");
+						Float.toString( (float) (Math.round(file.length() / Math .pow(1024., 2)*100)/100)) + " MB");
 			}
 
 			fillMaps.add(map);
