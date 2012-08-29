@@ -311,6 +311,9 @@ public static final boolean ZoomDown = false;
 			Matrix.multiplyMV(neweyeVector, 0, mMMatrix, 0, eyeVector, 0);
 //			Matrix.setLookAtM(mVMatrix, 0, 0, 0, XX, myNy[0], myNy[1], 0f, 0f,
 //					1.0f, 0.0f);
+			
+//			VIELLEICHT NICHT ÜBER SETLOOLAT SONDERN STATTDESSEN TRANSLATION IN
+//			EYEPOINT DANN ROTATION (INVERS?) UND TRANSLATION WIEDER ZURÜCK !!! 
 			float[] myNy = calcViewCenter();
 //			eyeX = neweyeVector[0];
 //			eyeY = neweyeVector[1];

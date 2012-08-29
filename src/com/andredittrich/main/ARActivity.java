@@ -160,8 +160,8 @@ public class ARActivity extends Activity implements SensorEventListener {
 					latitude = location.getLatitude();
 					longitude = location.getLongitude();
 					altitude = location.getAltitude();
-					String s = "Breite: " + latitude + "\nLï¿½nge: " + longitude
-							+ "\nHï¿½he: " + altitude + "\nGenauigkeit: "
+					String s = "Breite: " + latitude + "\nLänge: " + longitude
+							+ "\nHöhe: " + altitude + "\nGenauigkeit: "
 							+ location.getAccuracy();
 					textview.setText(s);
 				} else {
@@ -172,8 +172,8 @@ public class ARActivity extends Activity implements SensorEventListener {
 					longitude = lastKnownLocation.getLongitude();
 					altitude = lastKnownLocation.getAltitude();
 
-					String s = "Breite: " + latitude + "\nLï¿½nge: " + longitude
-							+ "\nHï¿½he: " + altitude + "\nGenauigkeit: "
+					String s = "Breite: " + latitude + "\nLänge: " + longitude
+							+ "\nHöhe: " + altitude + "\nGenauigkeit: "
 							+ lastKnownLocation.getAccuracy();
 					textview.setText(s);
 				}

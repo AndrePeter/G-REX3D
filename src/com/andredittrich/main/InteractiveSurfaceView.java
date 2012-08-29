@@ -11,24 +11,15 @@ import android.view.SurfaceView;
 class InteractiveSurfaceView extends GLSurfaceView {
 
 	private static final int INVALID_POINTER_ID = -1;
-    // The �active pointer� is the one currently moving our object.
-    private int mActivePointerId = INVALID_POINTER_ID;
-   
+    // The active pointer is the one currently moving our object.
+    private int mActivePointerId = INVALID_POINTER_ID;   
     private ScaleGestureDetector mScaleDetector;
     private float mScaleFactor = 1.f;
 	private final float TOUCH_SCALE_FACTOR = 180.0f / 360;
     private InteractiveRenderer mRenderer;
-    private float mPreviousX;
-    private float mPreviousY;
-//    private float mdX;
-//    private float mdY;
     private float xstart;
     private float ystart;
     public float mDensity = 1f;
-    private float ysum = 0;
-    private float yrealsum = 0;
-    private float xsum = 0;
-    private float xrealsum = 0;
     public static float dy = 0;
     public static float dx = 0;
 	
@@ -47,7 +38,7 @@ class InteractiveSurfaceView extends GLSurfaceView {
 		// set the mRenderer member
 		mRenderer = new InteractiveRenderer();
 		setRenderer(mRenderer);
-		getHolder().setFormat(PixelFormat.TRANSLUCENT);
+//		getHolder().setFormat(PixelFormat.TRANSLUCENT);
 //		getHolder().setFormat(PixelFormat.TRANSLUCENT);		
 		// Render the view only when there is a change
 		setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
@@ -56,23 +47,13 @@ class InteractiveSurfaceView extends GLSurfaceView {
 	
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		/*
-		 * only Handle Touch events if the Controls3D Button is linked
-		 */
-		
+				
 		mScaleDetector.onTouchEvent(event);
 	        
 	        final int action = event.getAction();
 	        switch (action & MotionEvent.ACTION_MASK) {
 	        case MotionEvent.ACTION_DOWN: {
-//	        	if (mRenderer.AR) {
-//	        		GREX3DActivity.setARprefs();
-////	        		GREX3DActivity.myZoomBar.setEnabled(false);
-////		        	GREX3DActivity.mPreview.mSurfaceView.setVisibility(SurfaceView.VISIBLE);
-////		        	GREX3DActivity.listenToLocUpdates();
-//		        	
-//	        	}
-	        	
+
 	            final float x = event.getX();
 	            final float y = event.getY();
                 
