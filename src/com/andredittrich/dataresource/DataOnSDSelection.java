@@ -2,6 +2,7 @@ package com.andredittrich.dataresource;
 
 import java.io.File;
 import java.io.FilenameFilter;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -97,6 +98,8 @@ public class DataOnSDSelection extends ListActivity {
 	}
 
 	private void prepareData4List() {
+		DecimalFormat df = new DecimalFormat( "0.00" );
+		
 		fillMaps.clear();
 		for (File file : files) {
 			HashMap<String, String> map = new HashMap<String, String>();
@@ -108,11 +111,11 @@ public class DataOnSDSelection extends ListActivity {
 			} else if (file.length() >= 1024
 					&& file.length() < Math.pow(1024., 2)) {
 				map.put(getString(R.string.FileSize),
-						Float.toString((float) (file.length() / 1024.)) + " KB");
+						df.format(file.length() / 1024.) + " KB");
 			} else if (file.length() >= Math.pow(1024., 2)
 					&& file.length() < Math.pow(1024., 3)) {
 				map.put(getString(R.string.FileSize),
-						Float.toString( (float) (Math.round(file.length() / Math .pow(1024., 2)*100)/100)) + " MB");
+						df.format(file.length() / Math.pow(1024., 2)) + " MB");
 			}
 
 			fillMaps.add(map);
