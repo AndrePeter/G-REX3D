@@ -58,7 +58,7 @@ public class ARActivity extends Activity implements SensorEventListener {
 	private static GOCADConnector connect3D = new GOCADConnector();
 	public static OGLLayer tsobj;
 	private static SensorManager mSensorManager;
-	private float[] rotvec = new float[3];
+	public static float[] rotvec = new float[3];
 	public static float[] RotMat = new float[16];
 	private FrameLayout frame;
 	public static VerticalSeekBar myZoomBar;
@@ -92,7 +92,8 @@ public class ARActivity extends Activity implements SensorEventListener {
 		super.onCreate(savedInstanceState);
 
 		tsobj = GREX3DActivity.tsobj;
-		
+	
+		Log.d("correctx", Float.toString(GREX3DActivity.connect3D.getCorrectz()));
 		Log.d("EPSG", Integer.toString(epsg));
 		ct = new CoordinateTrafo(epsg);
 //
@@ -149,8 +150,8 @@ public class ARActivity extends Activity implements SensorEventListener {
 				textview.setText("disabled");
 				
 //				startActivityForResult(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS), 0);
-				Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-				startActivity(intent);
+//				Intent intent = new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+//				startActivity(intent);
 			}
 
 			public void onLocationChanged(Location location) {
@@ -160,8 +161,8 @@ public class ARActivity extends Activity implements SensorEventListener {
 					latitude = location.getLatitude();
 					longitude = location.getLongitude();
 					altitude = location.getAltitude();
-					String s = "Breite: " + latitude + "\nLänge: " + longitude
-							+ "\nHöhe: " + altitude + "\nGenauigkeit: "
+					String s = "Breite: " + latitude + "\nLï¿½nge: " + longitude
+							+ "\nHï¿½he: " + altitude + "\nGenauigkeit: "
 							+ location.getAccuracy();
 					textview.setText(s);
 				} else {
@@ -172,10 +173,10 @@ public class ARActivity extends Activity implements SensorEventListener {
 					longitude = lastKnownLocation.getLongitude();
 					altitude = lastKnownLocation.getAltitude();
 
-					String s = "Breite: " + latitude + "\nLänge: " + longitude
-							+ "\nHöhe: " + altitude + "\nGenauigkeit: "
+					String s = "Breite: " + latitude + "\nLï¿½nge: " + longitude
+							+ "\nHï¿½he: " + altitude + "\nGenauigkeit: "
 							+ lastKnownLocation.getAccuracy();
-					textview.setText(s);
+//					textview.setText(s);
 				}
 //				double[] gk = cc.latLon2GK(latitude, longitude);
 				double[] transformedCoordinate = ct.transformCoordinate(latitude, longitude, altitude);
@@ -183,6 +184,12 @@ public class ARActivity extends Activity implements SensorEventListener {
 //				InterpolateCoordinates();
 				Log.d("rechtswert ", Double.toString(transformedCoordinate[0]));
 				Log.d("hochwert ", Double.toString(transformedCoordinate[1]));
+				ARRenderer.eyeX = (float) (transformedCoordinate[0] - GREX3DActivity.connect3D.getCorrectx());
+				ARRenderer.eyeY = (float) (transformedCoordinate[1] - GREX3DActivity.connect3D.getCorrecty());
+				ARRenderer.eyeZ = (float) (altitude - GREX3DActivity.connect3D.getCorrectz());
+				String s = "Hochwert: " + ARRenderer.eyeY + "\nRechtswert: " + ARRenderer.eyeX
+						+ "\nHÃ¶he: " + ARRenderer.eyeZ;
+				textview.setText(s);
 //				mGLView.requestRender();
 
 			}
@@ -352,6 +359,7 @@ public class ARActivity extends Activity implements SensorEventListener {
 	protected static void setARprefs() {
 		manager.requestLocationUpdates(providerName, 0, 0, listener);		
 		ARRenderer.eyeZ = ARRenderer.xExtent;
+		ARRenderer.XX = 0.0f;
 		mPreview.mSurfaceView.setVisibility(SurfaceView.VISIBLE);
 		myZoomBar.setMax((int) ARRenderer.xExtent);
 		myZoomBar.setProgress(myZoomBar.getMax());
@@ -410,6 +418,7 @@ public class ARActivity extends Activity implements SensorEventListener {
 	public void onSensorChanged(SensorEvent event) {
 		System.arraycopy(event.values, 0, rotvec, 0, 3);
 		SensorManager.getRotationMatrixFromVector(RotMat, event.values);
+		SensorManager.getOrientation(RotMat, rotvec);
 		/// if device ALWAYS LANDSCAPE !!!!!!
 //		SensorManager.remapCoordinateSystem(RotMat, SensorManager.AXIS_Y,
 //				SensorManager.AXIS_MINUS_X, RotMat);

@@ -56,7 +56,7 @@ public class GREX3DActivity extends Activity /*implements SensorEventListener*/ 
 	private static final String TAG = GREX3DActivity.class.getSimpleName();
 	private static boolean AR = false;
 	private static InteractiveSurfaceView mGLView;
-	private static GOCADConnector connect3D = new GOCADConnector();
+	public static GOCADConnector connect3D = new GOCADConnector();
 	public static OGLLayer tsobj;
 //	private static SensorManager mSensorManager;
 //	private float[] rotvec = new float[3];

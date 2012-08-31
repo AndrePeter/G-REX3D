@@ -17,6 +17,9 @@ public static final boolean ZoomDown = false;
 	public static float eyeX = 0.0f;
 	public static float eyeY = 0.0f;
 	public static float eyeZ = 0.0f;
+	public static float eyeXold = 0.0f;
+	public static float eyeYold = 0.0f;
+	public static float eyeZold = 0.0f;
 	public static float XX = 0.0f;
 	private int muMVPMatrixHandle;
 	private int PuMVPMatrixHandle;
@@ -24,6 +27,7 @@ public static final boolean ZoomDown = false;
 	private float[] mMVPMatrix = new float[16];
 	private float[] mMVPLMatrix = new float[16];
 	private float[] mMMatrix = new float[16];
+	private float[] mMOMatrix = new float[16];
 	private float[] mVMatrix = new float[16];
 	private float[] mProjMatrix = new float[16];
 	
@@ -218,7 +222,7 @@ public static final boolean ZoomDown = false;
 		layer = ARActivity.tsobj;
 		
 		eyeZ = xExtent;
-		XX = xExtent;
+//		XX = xExtent;
 //		initShapes();
 
 //		// Define a simple shader program for our point.
@@ -304,32 +308,34 @@ public static final boolean ZoomDown = false;
 			// Use rotation matrix of device orientation sensors as ModelMatrix
 //			Matrix.invertM(mMMatrix, 0, GREX3DActivity.RotMat, 0);
 			mMMatrix = ARActivity.RotMat;
-//			Matrix.setIdentityM(mMMatrix, 0);
+			Matrix.setIdentityM(mMOMatrix, 0);
 //			
-			eyeVector = new float[] {eyeX, eyeY, eyeZ,1.f};
+			eyeVector = new float[] {eyeX, eyeY, eyeZ, 1.f};
 			
 			Matrix.multiplyMV(neweyeVector, 0, mMMatrix, 0, eyeVector, 0);
 //			Matrix.setLookAtM(mVMatrix, 0, 0, 0, XX, myNy[0], myNy[1], 0f, 0f,
 //					1.0f, 0.0f);
-			
-//			VIELLEICHT NICHT ÜBER SETLOOLAT SONDERN STATTDESSEN TRANSLATION IN
-//			EYEPOINT DANN ROTATION (INVERS?) UND TRANSLATION WIEDER ZURÜCK !!! 
+			Matrix.rotateM(mMOMatrix, 0, ARActivity.rotvec[0]*180.0f/(float)Math.PI, 0, 0, 1);
+			Log.d("azimuth", Float.toString(ARActivity.rotvec[0]));
+//			VIELLEICHT NICHT ï¿½BER SETLOOLAT SONDERN STATTDESSEN TRANSLATION IN
+//			EYEPOINT DANN ROTATION (INVERS?) UND TRANSLATION WIEDER ZURï¿½CK !!! 
 			float[] myNy = calcViewCenter();
 //			eyeX = neweyeVector[0];
 //			eyeY = neweyeVector[1];
 //			eyeZ = neweyeVector[2];
 			
-//			Matrix.setLookAtM(mVMatrix, 0, 0, 0, XX, myNy[0], myNy[1], 0f, 0f,
+//			Matrix.setLookAtM(mVMatrix, 0, eyeX, eyeY, eyeZ, 0, 0, 0f, 0f,
 //					 1.0f, 0.0f);
-			Matrix.setLookAtM(mVMatrix, 0, neweyeVector[0], neweyeVector[1], neweyeVector[2], myNy[0], myNy[1], 0f, 0f,
-					 1.0f, 0.0f);	
-//			 Matrix.setLookAtM(mVMatrix, 0, eyeX, eyeY, eyeZ, myNy[0], myNy[1], 0f, 0f,
-//			 1.0f, 0.0f);		
-//			Matrix.transposeM(mMMatrix, 0, GREX3DActivity.RotMat, 0);
+//			Matrix.setLookAtM(mVMatrix, 0, neweyeVector[0], neweyeVector[1], neweyeVector[2], myNy[0], myNy[1], 0f, 0f,
+//					 1.0f, 0.0f);	
+			 Matrix.setLookAtM(mVMatrix, 0, eyeX, eyeY, eyeZ, myNy[0], myNy[1], -XX, 0f,
+			 1.0f, 0.0f);		
+//			Matrix.transposeM(mMMatrix, ey0, GREX3DActivity.RotMat, 0);
 		
 
-		// Combine ModelMatrix and ViewMatrix 
-		Matrix.multiplyMM(mMVPLMatrix, 0, mVMatrix, 0, mMMatrix, 0);
+		// Combine ModelMatrix and ViewMatrix
+//			 System.arraycopy(mVMatrix, 0, mMVPLMatrix, 0, 16);
+		Matrix.multiplyMM(mMVPLMatrix, 0, mVMatrix, 0, mMOMatrix, 0);
 
 		// Calculate light position
 		calcLightPos();
@@ -385,10 +391,13 @@ public static final boolean ZoomDown = false;
 //		float lambda = xExtent / oriVec[2];
 //		float my = lambda * oriVec[0];
 //		float ny = lambda * oriVec[1];
+//		Log.d("orix", Float.toString(oriVec[0]));
+//		Log.d("oriy", Float.toString(oriVec[1]));
+//		Log.d("oriz", Float.toString(oriVec[2]));
 		
-		 float lambda = neweyeVector[2]/ oriVec[2];
-		 float my = neweyeVector[0] + lambda*oriVec[0];
-		 float ny = neweyeVector[1] + lambda*oriVec[1];
+		 float lambda = eyeVector[2]/ oriVec[2];
+		 float my = eyeVector[0] + lambda*oriVec[0];
+		 float ny = eyeVector[1] + lambda*oriVec[1];
 		
 		return new float[] {my, ny};
 	}
