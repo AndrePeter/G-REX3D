@@ -83,7 +83,7 @@ public class ARActivity extends Activity implements SensorEventListener {
 	// variables to hold "Landeskoordinaten" and geographic coordinates
 	private double longitude = 0.0;
 	private double latitude = 0.0;
-	private double altitude;
+	private static double altitude;
 	CoordinateTrafo ct;
 	public static int epsg;
 
@@ -361,7 +361,11 @@ public class ARActivity extends Activity implements SensorEventListener {
 		ARRenderer.eyeZ = ARRenderer.xExtent;
 		ARRenderer.XX = 0.0f;
 		mPreview.mSurfaceView.setVisibility(SurfaceView.VISIBLE);
+		if (altitude != 0) {
+			myZoomBar.setMax((int) altitude + 10);
+		} else {
 		myZoomBar.setMax((int) ARRenderer.xExtent);
+		}
 		myZoomBar.setProgress(myZoomBar.getMax());
 		myZoomBar.setEnabled(false);
 //		try {

@@ -285,7 +285,7 @@ public static final boolean ZoomDown = false;
 	}
 
 	public void onDrawFrame(GL10 unused) {
-		
+		Log.d("out","out");
 		// Redraw background color
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
 
@@ -316,7 +316,7 @@ public static final boolean ZoomDown = false;
 //			Matrix.setLookAtM(mVMatrix, 0, 0, 0, XX, myNy[0], myNy[1], 0f, 0f,
 //					1.0f, 0.0f);
 			Matrix.rotateM(mMOMatrix, 0, ARActivity.rotvec[0]*180.0f/(float)Math.PI, 0, 0, 1);
-			Log.d("azimuth", Float.toString(ARActivity.rotvec[0]));
+//			Log.d("azimuth", Float.toString(ARActivity.rotvec[0]));
 //			VIELLEICHT NICHT �BER SETLOOLAT SONDERN STATTDESSEN TRANSLATION IN
 //			EYEPOINT DANN ROTATION (INVERS?) UND TRANSLATION WIEDER ZUR�CK !!! 
 			float[] myNy = calcViewCenter();
@@ -328,8 +328,15 @@ public static final boolean ZoomDown = false;
 //					 1.0f, 0.0f);
 //			Matrix.setLookAtM(mVMatrix, 0, neweyeVector[0], neweyeVector[1], neweyeVector[2], myNy[0], myNy[1], 0f, 0f,
 //					 1.0f, 0.0f);	
-			 Matrix.setLookAtM(mVMatrix, 0, eyeX, eyeY, eyeZ, myNy[0], myNy[1], -XX, 0f,
-			 1.0f, 0.0f);		
+			 
+			
+//			LATEST CORRECT !!!
+//			Matrix.setLookAtM(mVMatrix, 0, eyeX, eyeY, eyeZ, myNy[0], myNy[1], -XX, 0f,
+//			 1.0f, 0.0f);
+			 
+			 Matrix.setLookAtM(mVMatrix, 0, eyeX, eyeY, eyeZ, myNy[0], myNy[1], myNy[2], 0f,
+					 1.0f, 0.0f); 
+			 
 //			Matrix.transposeM(mMMatrix, ey0, GREX3DActivity.RotMat, 0);
 		
 
@@ -395,11 +402,13 @@ public static final boolean ZoomDown = false;
 //		Log.d("oriy", Float.toString(oriVec[1]));
 //		Log.d("oriz", Float.toString(oriVec[2]));
 		
-		 float lambda = eyeVector[2]/ oriVec[2];
-		 float my = eyeVector[0] + lambda*oriVec[0];
-		 float ny = eyeVector[1] + lambda*oriVec[1];
-		
-		return new float[] {my, ny};
+//		 float lambda = eyeVector[2]/ oriVec[2];
+//		 float my = eyeVector[0] + lambda*oriVec[0];
+//		 float ny = eyeVector[1] + lambda*oriVec[1];
+		 float my = -oriVec[0] + eyeVector[0];
+		 float ny = -oriVec[1] + eyeVector[1];
+		 float eta = oriVec[2] + eyeVector[2];
+		return new float[] {my, ny, eta};
 	}
 
 	private void drawPoints() {
