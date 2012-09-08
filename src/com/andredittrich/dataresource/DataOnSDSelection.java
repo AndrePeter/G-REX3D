@@ -23,7 +23,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-import com.andredittrich.main.GREX3DActivity;
+import com.andredittrich.view3d.GREX3DActivity;
 
 public class DataOnSDSelection extends ListActivity {
 
@@ -180,33 +180,4 @@ public class DataOnSDSelection extends ListActivity {
 		}
 	}
 
-	private class FileListFilter implements FilenameFilter {
-		private String name;
-
-		private List<String> extension = new ArrayList<String>();
-
-		public FileListFilter(String name, String[] ext) {
-			this.name = name;
-			this.extension = Arrays.asList(ext);
-		}
-
-		public boolean accept(File directory, String filename) {
-			boolean fileOK = true;
-
-			if (name != null) {
-				fileOK &= filename.startsWith(name);
-			}
-
-			if (extension != null) {
-
-				if (filename.contains(".")) {
-					String[] splitname = filename.split("\\.");
-					fileOK &= extension.contains(splitname[1]);
-				} else {
-					fileOK = false;
-				}
-			}
-			return fileOK;
-		}
-	}
 }

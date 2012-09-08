@@ -137,9 +137,7 @@ public class WFSSelectionActivity extends ListActivity {
 		if (!baseURL.startsWith(getString(R.string.HTTP))) {
 			baseURL = getString(R.string.HTTP) + baseURL;
 		}
-		Log.d("url", baseURL + getString(R.string.Capabilities)
-				+ getString(R.string.KVP_Separator)
-				+ getString(R.string.Version110));
+		Log.d("baseurl", baseURL);
 		ConnectivityManager cm =
 		        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		    NetworkInfo netInfo = cm.getActiveNetworkInfo();
@@ -217,9 +215,12 @@ public class WFSSelectionActivity extends ListActivity {
 
 	public void readWebpage(View view) {
 		DownloadWebPageTask task = new DownloadWebPageTask();
-		String url = baseURL + getString(R.string.Capabilities)
+		String url = baseURL + getString(R.string.Type)
+				+ getString(R.string.KVP_Separator)
+				+ getString(R.string.Capabilities)
 				+ getString(R.string.KVP_Separator)
 				+ getString(R.string.Version110);
+		Log.d("url",url);
 		task.execute(new String[] { url });
 	}
 
@@ -259,7 +260,7 @@ public class WFSSelectionActivity extends ListActivity {
 		protected void onPostExecute(ArrayList<String> result) {
 			
 
-			if (result != null) {
+			if (result != null && result.size() != 0) {
 				serviceResponse = new String[result.size()];
 				for (int i = 0; i < result.size(); i++) {
 					serviceResponse[i] = result.get(i);

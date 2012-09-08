@@ -22,8 +22,8 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 
-import com.andredittrich.main.ARActivity;
-import com.andredittrich.main.GREX3DActivity;
+import com.andredittrich.view3d.ARActivity;
+import com.andredittrich.view3d.GREX3DActivity;
 
 public class FeatureTypeSelectionActivity extends ListActivity {
 
@@ -48,7 +48,12 @@ public class FeatureTypeSelectionActivity extends ListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
+		
 		intentData = getDataFromIntent();
+		Log.d("er",Integer.toString(intentData.length));
+		for ( int i = 0; i < intentData.length; i++) {
+			Log.d("i",intentData[i]);
+		}
 		List<HashMap<String, String>> fillMaps = prepareData4List();
 
 		adapter = new SimpleAdapter(this, fillMaps,
@@ -88,11 +93,14 @@ public class FeatureTypeSelectionActivity extends ListActivity {
 		List<HashMap<String, String>> fillMaps = new ArrayList<HashMap<String, String>>();
 		for (int i = 0; i < intentData.length; i = i + 2) {
 			HashMap<String, String> map = new HashMap<String, String>();
+			Log.d("epsg", intentData[i]);
+			if (!intentData[i].equalsIgnoreCase("wfs")) {
 			map.put(ROW_ID_1, intentData[i]);
 			//map.put(ROW_ID_2, intentData[i].split(":")[1]);
 			ARActivity.epsg = Integer.parseInt(intentData[i+1].split("EPSG:")[1]);
 			map.put(ROW_ID_3, intentData[i+1].split("crs:")[1]);
 			fillMaps.add(map);
+			}
 		}
 		return fillMaps;
 	}

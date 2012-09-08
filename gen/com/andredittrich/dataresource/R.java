@@ -52,34 +52,35 @@ public final class R {
          */
         public static final int AddWFSButtonText=0x7f040005;
         public static final int AddWFSTitle=0x7f040006;
-        public static final int Capabilities=0x7f040010;
-        public static final int DELETED=0x7f04001d;
-        public static final int DIALOG_ADDWFS=0x7f04001a;
-        public static final int DataFolder=0x7f040020;
+        public static final int Capabilities=0x7f040011;
+        public static final int DELETED=0x7f04001e;
+        public static final int DIALOG_ADDWFS=0x7f04001b;
+        public static final int DataFolder=0x7f040021;
+        public static final int Describe=0x7f040010;
+        public static final int Extensions=0x7f040023;
+        public static final int FAILED=0x7f04001f;
+        public static final int FEATURE_TYPE_TAG=0x7f04001c;
+        public static final int Feature=0x7f040012;
+        public static final int FeatureTypeTitle=0x7f04000c;
+        public static final int FileName=0x7f040017;
+        public static final int FileSize=0x7f040018;
+        public static final int HTTP=0x7f04001a;
+        public static final int KVP_Separator=0x7f040020;
+        public static final int NOWEB=0x7f040024;
+        public static final int NOWFS=0x7f040025;
+        public static final int NoData=0x7f040022;
+        public static final int SDCard=0x7f040003;
+        public static final int SRS_TAG=0x7f04001d;
+        public static final int TSFilesTitle=0x7f04000d;
+        public static final int TSObject=0x7f040019;
+        public static final int TS_delete=0x7f04000e;
         /**  Requests 
          */
-        public static final int Describe=0x7f04000f;
-        public static final int Extensions=0x7f040022;
-        public static final int FAILED=0x7f04001e;
-        public static final int FEATURE_TYPE_TAG=0x7f04001b;
-        public static final int Feature=0x7f040011;
-        public static final int FeatureTypeTitle=0x7f04000c;
-        public static final int FileName=0x7f040016;
-        public static final int FileSize=0x7f040017;
-        public static final int HTTP=0x7f040019;
-        public static final int KVP_Separator=0x7f04001f;
-        public static final int NOWEB=0x7f040023;
-        public static final int NOWFS=0x7f040024;
-        public static final int NoData=0x7f040021;
-        public static final int SDCard=0x7f040003;
-        public static final int SRS_TAG=0x7f04001c;
-        public static final int TSFilesTitle=0x7f04000d;
-        public static final int TSObject=0x7f040018;
-        public static final int TS_delete=0x7f04000e;
-        public static final int Typename=0x7f040015;
-        public static final int Version100=0x7f040012;
-        public static final int Version110=0x7f040013;
-        public static final int Version20=0x7f040014;
+        public static final int Type=0x7f04000f;
+        public static final int Typename=0x7f040016;
+        public static final int Version100=0x7f040013;
+        public static final int Version110=0x7f040014;
+        public static final int Version20=0x7f040015;
         /**   Widget labels 
          */
         public static final int WFS=0x7f040002;

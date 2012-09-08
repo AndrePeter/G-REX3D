@@ -25,6 +25,7 @@
     <string name="TS_delete">Delete File</string>
     
     <!-- Requests -->
+    <string name="Type">SERVICE=WFS</string>
     <string name="Describe">REQUEST=DescribeFeatureType</string>
     <string name="Capabilities">REQUEST=GetCapabilities</string>
     <string name="Feature">REQUEST=GetFeature</string>
