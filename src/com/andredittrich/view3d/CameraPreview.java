@@ -18,7 +18,7 @@ import android.view.ViewGroup;
  * because not all devices have cameras that support preview sizes at the same
  * aspect ratio as the device's display.
  */
-class Preview extends ViewGroup implements SurfaceHolder.Callback {
+class CameraPreview extends ViewGroup implements SurfaceHolder.Callback {
 	private final String TAG = "Preview";
 
 	SurfaceView mSurfaceView;
@@ -27,7 +27,7 @@ class Preview extends ViewGroup implements SurfaceHolder.Callback {
 	List<Size> mSupportedPreviewSizes;
 	public Camera mCamera;
 
-	Preview(Context context) {
+	CameraPreview(Context context) {
 		super(context);
 
 		mSurfaceView = new SurfaceView(context);

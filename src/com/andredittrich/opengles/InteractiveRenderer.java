@@ -9,7 +9,7 @@ import android.opengl.Matrix;
 import android.util.Log;
 
 import com.andredittrich.importer.OGLLayer;
-import com.andredittrich.view3d.GREX3DActivity;
+import com.andredittrich.view3d.InteractiveActivity;
 
 public class InteractiveRenderer implements Renderer {
 
@@ -85,127 +85,127 @@ public class InteractiveRenderer implements Renderer {
 	 */
 	private final float[] mLightPosInEyeSpace = new float[4];
 
-	final String vertexShaderCode = "uniform mat4 uMVPMatrix;      \n" // A
-																		// constant
-																		// representing
-																		// the
-																		// combined
-																		// model/view/projection
-																		// matrix.
-			+ "uniform mat4 u_MVMatrix;       \n" // A constant representing the
-													// combined model/view
-													// matrix.
+//	final String vertexShaderCode = "uniform mat4 uMVPMatrix;      \n" // A
+//																		// constant
+//																		// representing
+//																		// the
+//																		// combined
+//																		// model/view/projection
+//																		// matrix.
+//			+ "uniform mat4 u_MVMatrix;       \n" // A constant representing the
+//													// combined model/view
+//													// matrix.
+//
+//			+ "attribute vec4 vPosition;     \n" // Per-vertex position
+//													// information we will pass
+//													// in.
+//			+ "vec4 a_Color = vec4(0, 1, 1, 1.0);     \n"
+//			+ "attribute vec3 a_Normal;       \n" // Per-vertex normal
+//													// information we will pass
+//													// in.
+//
+//			+ "varying vec3 v_Position;       \n" // This will be passed into
+//													// the fragment shader.
+//			+ "varying vec4 v_Color;          \n" // This will be passed into
+//													// the fragment shader.
+//			+ "varying vec3 v_Normal;         \n" // This will be passed into
+//													// the fragment shader.
+//
+//			// The entry point for our vertex shader.
+//			+ "void main()                                                \n"
+//			+ "{                                                          \n"
+//			// Transform the vertex into eye space.
+//			+ "   v_Position = vec3(u_MVMatrix * vPosition);             \n"
+//			// Pass through the color.
+//			+ "   v_Color = a_Color + 0.75;                                   \n"
+//			// Transform the normal's orientation into eye space.
+//			+ "   v_Normal = vec3(u_MVMatrix * vec4(a_Normal, 0.0));      \n"
+//			// gl_Position is a special variable used to store the final
+//			// position.
+//			// Multiply the vertex by the matrix to get the final point in
+//			// normalized screen coordinates.
+//			+ "   gl_Position = uMVPMatrix * vPosition;                 \n"
+//			+ "}                                                          \n";
 
-			+ "attribute vec4 vPosition;     \n" // Per-vertex position
-													// information we will pass
-													// in.
-			+ "vec4 a_Color = vec4(0, 1, 1, 1.0);     \n"
-			+ "attribute vec3 a_Normal;       \n" // Per-vertex normal
-													// information we will pass
-													// in.
+	 private final String vertexShaderCode =
+	 "uniform mat4 uMVPMatrix;      \n"
+	 + "uniform mat4 u_MVMatrix;       \n"
+	 + "uniform vec3 u_LightPos;       \n"
+	 + "vec4 a_Color = vec4(0, 1, 1, 1.0);     \n"
+	 + "attribute vec4 vPosition;     \n"
+	 + "attribute vec3 a_Normal;       \n"
+	 + "varying vec4 v_Color;   \n"
+	 + "void main()                    \n"
+	 + "{                              \n"
+	 +
+	 "   vec3 modelViewVertex = vec3(u_MVMatrix * vPosition);              \n"
+	 +
+	 "   vec3 modelViewNormal = vec3(u_MVMatrix * vec4(a_Normal, 0.0));     \n"
+	 +
+	 "   float distance = length(u_LightPos - modelViewVertex);             \n"
+	 +
+	 "   vec3 lightVector = normalize(u_LightPos - modelViewVertex);        \n"
+	 +
+	 "   float diffuse = max(dot(modelViewNormal, lightVector), 0.1);       \n"
+	 + "   diffuse = diffuse * (1.0 / (0.0001*distance));  \n"
+	 +
+	 "   v_Color = (a_Color + 0.75) * diffuse;                                      \n"
+	 +
+	 "   gl_Position = uMVPMatrix * vPosition;                            \n"
+	 + "   gl_PointSize = 5.0;         \n"
+	 +
+	 "}                                                                     \n";
 
-			+ "varying vec3 v_Position;       \n" // This will be passed into
-													// the fragment shader.
-			+ "varying vec4 v_Color;          \n" // This will be passed into
-													// the fragment shader.
-			+ "varying vec3 v_Normal;         \n" // This will be passed into
-													// the fragment shader.
+//	final String fragmentShaderCode = "precision mediump float;       \n" // Set
+//																			// the
+//																			// default
+//																			// precision
+//																			// to
+//																			// medium.
+//																			// We
+//																			// don't
+//																			// need
+//																			// as
+//																			// high
+//																			// of
+//																			// a
+//	// precision in the fragment shader.
+//			+ "uniform vec3 u_LightPos;       \n" // The position of the light
+//													// in eye space.
+//
+//			+ "varying vec3 v_Position;		\n" // Interpolated position for this
+//												// fragment.
+//			+ "varying vec4 v_Color;          \n" // This is the color from the
+//													// vertex shader
+//													// interpolated across the
+//			// triangle per fragment.
+//			+ "varying vec3 v_Normal;         \n" // Interpolated normal for
+//													// this fragment.
+//
+//			// The entry point for our fragment shader.
+//			+ "void main()                    \n"
+//			+ "{                              \n"
+//			// Will be used for attenuation.
+//			+ "   float distance = length(u_LightPos - v_Position);                  \n"
+//			// Get a lighting direction vector from the light to the vertex.
+//			+ "   vec3 lightVector = normalize(u_LightPos - v_Position);             \n"
+//			// Calculate the dot product of the light vector and vertex normal.
+//			// If the normal and light vector are
+//			// pointing in the same direction then it will get max illumination.
+//			+ "   float diffuse = max(dot(v_Normal, lightVector), 0.1);              \n"
+//			// Add attenuation.
+//			+ "   diffuse = diffuse * (1.0 / (0.0001*distance));  \n"
+//			// Multiply the color by the diffuse illumination level to get final
+//			// output color.
+//			+ "   gl_FragColor = v_Color * diffuse;                                  \n"
+//			+ "}                                                                     \n";
 
-			// The entry point for our vertex shader.
-			+ "void main()                                                \n"
-			+ "{                                                          \n"
-			// Transform the vertex into eye space.
-			+ "   v_Position = vec3(u_MVMatrix * vPosition);             \n"
-			// Pass through the color.
-			+ "   v_Color = a_Color + 0.75;                                   \n"
-			// Transform the normal's orientation into eye space.
-			+ "   v_Normal = vec3(u_MVMatrix * vec4(a_Normal, 0.0));      \n"
-			// gl_Position is a special variable used to store the final
-			// position.
-			// Multiply the vertex by the matrix to get the final point in
-			// normalized screen coordinates.
-			+ "   gl_Position = uMVPMatrix * vPosition;                 \n"
-			+ "}                                                          \n";
-
-	// private final String vertexShaderCode =
-	// "uniform mat4 uMVPMatrix;      \n"
-	// + "uniform mat4 u_MVMatrix;       \n"
-	// + "uniform vec3 u_LightPos;       \n"
-	// + "vec4 a_Color = vec4(0, 1, 1, 1.0);     \n"
-	// + "attribute vec4 vPosition;     \n"
-	// + "attribute vec3 a_Normal;       \n"
-	// + "varying vec4 v_Color;   \n"
-	// + "void main()                    \n"
-	// + "{                              \n"
-	// +
-	// "   vec3 modelViewVertex = vec3(u_MVMatrix * vPosition);              \n"
-	// +
-	// "   vec3 modelViewNormal = vec3(u_MVMatrix * vec4(a_Normal, 0.0));     \n"
-	// +
-	// "   float distance = length(u_LightPos - modelViewVertex);             \n"
-	// +
-	// "   vec3 lightVector = normalize(u_LightPos - modelViewVertex);        \n"
-	// +
-	// "   float diffuse = max(dot(modelViewNormal, lightVector), 0.1);       \n"
-	// + "   diffuse = diffuse * (1.0 / (0.0001*distance));  \n"
-	// +
-	// "   v_Color = a_Color * diffuse + a_Color * vec4(0.5, 0.5, 0.5, 1.0);                                      \n"
-	// +
-	// "   gl_Position = uMVPMatrix * vPosition;                            \n"
-	// + "   gl_PointSize = 5.0;         \n"
-	// +
-	// "}                                                                     \n";
-
-	final String fragmentShaderCode = "precision mediump float;       \n" // Set
-																			// the
-																			// default
-																			// precision
-																			// to
-																			// medium.
-																			// We
-																			// don't
-																			// need
-																			// as
-																			// high
-																			// of
-																			// a
-	// precision in the fragment shader.
-			+ "uniform vec3 u_LightPos;       \n" // The position of the light
-													// in eye space.
-
-			+ "varying vec3 v_Position;		\n" // Interpolated position for this
-												// fragment.
-			+ "varying vec4 v_Color;          \n" // This is the color from the
-													// vertex shader
-													// interpolated across the
-			// triangle per fragment.
-			+ "varying vec3 v_Normal;         \n" // Interpolated normal for
-													// this fragment.
-
-			// The entry point for our fragment shader.
-			+ "void main()                    \n"
-			+ "{                              \n"
-			// Will be used for attenuation.
-			+ "   float distance = length(u_LightPos - v_Position);                  \n"
-			// Get a lighting direction vector from the light to the vertex.
-			+ "   vec3 lightVector = normalize(u_LightPos - v_Position);             \n"
-			// Calculate the dot product of the light vector and vertex normal.
-			// If the normal and light vector are
-			// pointing in the same direction then it will get max illumination.
-			+ "   float diffuse = max(dot(v_Normal, lightVector), 0.1);              \n"
-			// Add attenuation.
-			+ "   diffuse = diffuse * (1.0 / (0.0001*distance));  \n"
-			// Multiply the color by the diffuse illumination level to get final
-			// output color.
-			+ "   gl_FragColor = v_Color * diffuse;                                  \n"
-			+ "}                                                                     \n";
-
-	// private final String fragmentShaderCode =
-	// "precision mediump float;  \n" +
-	// "varying vec4 v_Color;      \n" +
-	// "void main(){              \n" +
-	// " gl_FragColor =  v_Color; \n" +
-	// "}                         \n";
+	 private final String fragmentShaderCode =
+	 "precision mediump float;  \n" +
+	 "varying vec4 v_Color;      \n" +
+	 "void main(){              \n" +
+	 " gl_FragColor =  v_Color; \n" +
+	 "}                         \n";
 
 	public void onSurfaceCreated(GL10 unused, EGLConfig config) {
 
@@ -219,7 +219,7 @@ public class InteractiveRenderer implements Renderer {
 		GLES20.glEnable(GLES20.GL_BLEND_SRC_ALPHA);
 
 		// Initialize geometry
-		layer = GREX3DActivity.tsobj;
+		layer = InteractiveActivity.tsobj;
 		
 		XX = xExtent;
 //		initShapes();
@@ -464,7 +464,7 @@ public class InteractiveRenderer implements Renderer {
 	}
 
 	private void initShapes() {
-		layer = GREX3DActivity.tsobj;
+		layer = InteractiveActivity.tsobj;
 	}
 
 	private int loadShader(int type, String shaderCode) {

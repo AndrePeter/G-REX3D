@@ -44,7 +44,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.andredittrich.coordtrafo.CoordinateTrafo;
 import com.andredittrich.coordtrafo.DatumParams;
-import com.andredittrich.dataresource.FeatureTypeSelectionActivity;
+import com.andredittrich.dataresource.FeatureTypeSelection;
 import com.andredittrich.dataresource.R;
 import com.andredittrich.importer.GOCADConnector;
 import com.andredittrich.importer.OGLLayer;
@@ -70,7 +70,7 @@ public class ARActivity extends Activity implements SensorEventListener {
 	private String intentData = null;
 	private String intentType = null;
 	// Camera variables
-	public static Preview mPreview;
+	public static CameraPreview mPreview;
 	Camera mCamera;
 	int numberOfCameras;
 	int cameraCurrentlyLocked;
@@ -94,9 +94,9 @@ public class ARActivity extends Activity implements SensorEventListener {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		tsobj = GREX3DActivity.tsobj;
+		tsobj = InteractiveActivity.tsobj;
 	
-		Log.d("correctx", Float.toString(GREX3DActivity.connect3D.getCorrectz()));
+		Log.d("correctx", Float.toString(InteractiveActivity.connect3D.getCorrectz()));
 		Log.d("EPSG", Integer.toString(epsg));
 		ct = new CoordinateTrafo(epsg);
 //
@@ -187,10 +187,10 @@ public class ARActivity extends Activity implements SensorEventListener {
 //				InterpolateCoordinates();
 				Log.d("rechtswert ", Double.toString(transformedCoordinate[0]));
 				Log.d("hochwert ", Double.toString(transformedCoordinate[1]));
-				ARRenderer.eyeX = (float) (transformedCoordinate[0] - GREX3DActivity.connect3D.getCorrectx());
-				ARRenderer.eyeY = (float) (transformedCoordinate[1] - GREX3DActivity.connect3D.getCorrecty());
+				ARRenderer.eyeX = (float) (transformedCoordinate[0] - InteractiveActivity.connect3D.getCorrectx());
+				ARRenderer.eyeY = (float) (transformedCoordinate[1] - InteractiveActivity.connect3D.getCorrecty());
 				if (!myZoomBar.isEnabled()) {
-					ARRenderer.eyeZ = (float) (altitude - GREX3DActivity.connect3D.getCorrectz());
+					ARRenderer.eyeZ = (float) (altitude - InteractiveActivity.connect3D.getCorrectz());
 				}
 				
 				String s = "Hochwert: " + ARRenderer.eyeY + "\nRechtswert: " + ARRenderer.eyeX
@@ -300,11 +300,10 @@ public class ARActivity extends Activity implements SensorEventListener {
 		setARprefs();
 	}
 	
-
 	private void createLayout() {
 
 		frame = new FrameLayout(this);
-		mPreview = new Preview(this);
+		mPreview = new CameraPreview(this);
 		s1 = new Switch(this);
 		s1.setChecked(true);
 		s1.setText("");
@@ -372,9 +371,9 @@ public class ARActivity extends Activity implements SensorEventListener {
 		longitude = lastKnownLocation.getLongitude();
 		altitude = lastKnownLocation.getAltitude();
 		double[] transformedCoordinate = ct.transformCoordinate(latitude, longitude, altitude);
-		ARRenderer.eyeX = (float) (transformedCoordinate[0] - GREX3DActivity.connect3D.getCorrectx());
-		ARRenderer.eyeY = (float) (transformedCoordinate[1] - GREX3DActivity.connect3D.getCorrecty());
-		ARRenderer.eyeZ = (float) (altitude - GREX3DActivity.connect3D.getCorrectz());
+		ARRenderer.eyeX = (float) (transformedCoordinate[0] - InteractiveActivity.connect3D.getCorrectx());
+		ARRenderer.eyeY = (float) (transformedCoordinate[1] - InteractiveActivity.connect3D.getCorrecty());
+		ARRenderer.eyeZ = (float) (altitude - InteractiveActivity.connect3D.getCorrectz());
 		} else {
 			ARRenderer.eyeZ = ARRenderer.xExtent;
 

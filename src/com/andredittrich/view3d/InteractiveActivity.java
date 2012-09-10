@@ -44,7 +44,7 @@ import android.widget.SeekBar.OnSeekBarChangeListener;
 
 import com.andredittrich.coordtrafo.CoordinateTrafo;
 import com.andredittrich.coordtrafo.DatumParams;
-import com.andredittrich.dataresource.FeatureTypeSelectionActivity;
+import com.andredittrich.dataresource.FeatureTypeSelection;
 import com.andredittrich.dataresource.R;
 import com.andredittrich.importer.GOCADConnector;
 import com.andredittrich.importer.OGLLayer;
@@ -53,10 +53,10 @@ import com.andredittrich.opengles.InteractiveSurfaceView;
 
 
 
-public class GREX3DActivity extends Activity /*implements SensorEventListener*/ {
+public class InteractiveActivity extends Activity /*implements SensorEventListener*/ {
 
 	
-	private static final String TAG = GREX3DActivity.class.getSimpleName();
+	private static final String TAG = InteractiveActivity.class.getSimpleName();
 	private static boolean AR = false;
 	private static InteractiveSurfaceView mGLView;
 	public static GOCADConnector connect3D = new GOCADConnector();
@@ -356,7 +356,7 @@ public class GREX3DActivity extends Activity /*implements SensorEventListener*/ 
 					boolean isChecked) {
 				if (isChecked) {
 
-					Intent intent = new Intent(GREX3DActivity.this, ARActivity.class);
+					Intent intent = new Intent(InteractiveActivity.this, ARActivity.class);
 					intent.putExtra(getString(R.string.TSObject), intentData);
 					intent.putExtra("ResourceType", intentType);
 					startActivity(intent);

@@ -43,7 +43,7 @@ import android.widget.Toast;
 import com.andredittrich.database.SQLiteOnSD;
 import com.andredittrich.xml.XMLHandler;
 
-public class WFSSelectionActivity extends ListActivity {
+public class WFSSelection extends ListActivity {
 
 	/**
 	 * Handler to access the SQLite database of the stored web feature services
@@ -265,12 +265,12 @@ public class WFSSelectionActivity extends ListActivity {
 				for (int i = 0; i < result.size(); i++) {
 					serviceResponse[i] = result.get(i);
 				}
-				Intent intent = new Intent(WFSSelectionActivity.this,
-						FeatureTypeSelectionActivity.class);
+				Intent intent = new Intent(WFSSelection.this,
+						FeatureTypeSelection.class);
 				intent.putExtra(FEATURE_TYPE_INFOS, serviceResponse);
 				startActivity(intent);
 			} else {
-				Toast.makeText(WFSSelectionActivity.this, R.string.NOWFS, Toast.LENGTH_LONG).show();
+				Toast.makeText(WFSSelection.this, R.string.NOWFS, Toast.LENGTH_LONG).show();
 			}
 			
 		}

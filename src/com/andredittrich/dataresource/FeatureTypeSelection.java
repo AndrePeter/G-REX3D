@@ -23,9 +23,9 @@ import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 
 import com.andredittrich.view3d.ARActivity;
-import com.andredittrich.view3d.GREX3DActivity;
+import com.andredittrich.view3d.InteractiveActivity;
 
-public class FeatureTypeSelectionActivity extends ListActivity {
+public class FeatureTypeSelection extends ListActivity {
 
 	private static String[] intentData;
 	private static SimpleAdapter adapter;
@@ -77,11 +77,11 @@ public class FeatureTypeSelectionActivity extends ListActivity {
 		HashMap<String, String> o = (HashMap<String, String>) getListAdapter()
 				.getItem(position);
 		chosenTypeName = (String) o.get(ROW_ID_1);
-		describeURL = WFSSelectionActivity.baseURL + getString(R.string.Describe) + "&"
+		describeURL = WFSSelection.baseURL + getString(R.string.Describe) + "&"
 				+ getString(R.string.Version110) + "&" + getString(R.string.Typename)
 				+ chosenTypeName;
 
-		getURL = WFSSelectionActivity.baseURL + getString(R.string.Feature) + "&"
+		getURL = WFSSelection.baseURL + getString(R.string.Feature) + "&"
 				+ getString(R.string.Version110) + "&" + getString(R.string.Typename)
 				+ chosenTypeName + "&OUTPUTFORMAT=GOCAD";
 		Log.d("describeurl", describeURL);
@@ -109,7 +109,7 @@ public class FeatureTypeSelectionActivity extends ListActivity {
 		Bundle extras = getIntent().getExtras();
 		if (extras != null) {
 			intentData = extras
-					.getStringArray(WFSSelectionActivity.FEATURE_TYPE_INFOS);
+					.getStringArray(WFSSelection.FEATURE_TYPE_INFOS);
 			return intentData;
 		} else {
 			return null;
@@ -168,7 +168,7 @@ public class FeatureTypeSelectionActivity extends ListActivity {
 						
 			serviceResponse = result.toString();
 			
-			Intent intent = new Intent(FeatureTypeSelectionActivity.this, GREX3DActivity.class);
+			Intent intent = new Intent(FeatureTypeSelection.this, InteractiveActivity.class);
 			intent.putExtra(getString(R.string.TSObject), serviceResponse);
 			intent.putExtra("ResourceType", "WFS");
 			startActivity(intent);

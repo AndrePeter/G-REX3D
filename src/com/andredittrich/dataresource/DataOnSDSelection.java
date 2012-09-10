@@ -23,7 +23,7 @@ import android.widget.ListView;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-import com.andredittrich.view3d.GREX3DActivity;
+import com.andredittrich.view3d.InteractiveActivity;
 
 public class DataOnSDSelection extends ListActivity {
 
@@ -143,7 +143,7 @@ public class DataOnSDSelection extends ListActivity {
 		HashMap<String, String> o = (HashMap<String, String>) getListAdapter()
 				.getItem(position);
 		TSFileName = (String) o.get(getString(R.string.FileName));
-		Intent intent = new Intent(DataOnSDSelection.this, GREX3DActivity.class);
+		Intent intent = new Intent(DataOnSDSelection.this, InteractiveActivity.class);
 		intent.putExtra(getString(R.string.TSObject), dataPath + File.separator
 				+ TSFileName);
 		Log.d("dateiNAME",TSFileName);

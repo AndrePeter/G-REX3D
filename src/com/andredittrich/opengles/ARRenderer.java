@@ -10,7 +10,7 @@ import android.util.Log;
 
 import com.andredittrich.importer.OGLLayer;
 import com.andredittrich.view3d.ARActivity;
-import com.andredittrich.view3d.GREX3DActivity;
+import com.andredittrich.view3d.InteractiveActivity;
 
 public class ARRenderer implements Renderer {
 
@@ -452,7 +452,7 @@ public static final boolean ZoomDown = false;
 	}
 
 	private void initShapes() {
-		layer = GREX3DActivity.tsobj;
+		layer = InteractiveActivity.tsobj;
 	}
 
 	private int loadShader(int type, String shaderCode) {
