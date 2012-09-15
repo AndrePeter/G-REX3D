@@ -54,6 +54,7 @@ public class InteractiveSurfaceView extends GLSurfaceView {
 	        switch (action & MotionEvent.ACTION_MASK) {
 	        case MotionEvent.ACTION_DOWN: {
 
+	        	Log.d("touch","touch");
 	            final float x = event.getX();
 	            final float y = event.getY();
                 
@@ -64,6 +65,7 @@ public class InteractiveSurfaceView extends GLSurfaceView {
 	        }
 	            
 	        case MotionEvent.ACTION_MOVE: {
+	        	Log.d("move","move");
 	            final int pointerIndex = event.findPointerIndex(mActivePointerId);
 	            final float x = event.getX(pointerIndex);
 	            final float y = event.getY(pointerIndex);

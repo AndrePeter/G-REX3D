@@ -1,15 +1,30 @@
 package com.andredittrich.dataresource;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+
 import android.app.ListActivity;
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -20,10 +35,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import com.andredittrich.view3d.InteractiveActivity;
+import com.andredittrich.xml.XMLHandler;
 
 public class DataOnSDSelection extends ListActivity {
 
@@ -53,7 +70,9 @@ public class DataOnSDSelection extends ListActivity {
 	private static File[] files = null;
 
 	// private static GOCADConnector connect3D = new GOCADConnector();
-	// ProgressBar progressBar;
+	public static ProgressBar progressBar;
+
+	public static String[] serviceResponse;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -67,7 +86,8 @@ public class DataOnSDSelection extends ListActivity {
 		setListAdapter(adapter);
 
 		setContentView(R.layout.listtsfiles);
-		
+		progressBar = (ProgressBar) findViewById(R.id.marker_progress2);
+		progressBar.setVisibility(View.INVISIBLE);
 		registerForContextMenu(getListView());
 	}
 
@@ -79,7 +99,7 @@ public class DataOnSDSelection extends ListActivity {
 	private void searchTSFiles() {
 		File dir = new File(dataPath);
 		Log.d("data", dir.toString());
-		FilenameFilter filter = new FileListFilter(null, new String[] {"ts"});
+		FilenameFilter filter = new FileListFilter(null, new String[] { "ts" });
 		files = dir.listFiles(filter);
 		Log.d("wq", files.toString());
 		if (files.length == 0) {
@@ -98,13 +118,13 @@ public class DataOnSDSelection extends ListActivity {
 	}
 
 	private void prepareData4List() {
-		DecimalFormat df = new DecimalFormat( "0.00" );
-		
+		DecimalFormat df = new DecimalFormat("0.00");
+
 		fillMaps.clear();
 		for (File file : files) {
 			HashMap<String, String> map = new HashMap<String, String>();
 			map.put(getString(R.string.FileName), file.getName());
-			
+
 			if (file.length() < 1024) {
 				map.put(getString(R.string.FileSize),
 						Long.toString(file.length()) + " Bytes");
@@ -143,12 +163,25 @@ public class DataOnSDSelection extends ListActivity {
 		HashMap<String, String> o = (HashMap<String, String>) getListAdapter()
 				.getItem(position);
 		TSFileName = (String) o.get(getString(R.string.FileName));
-		Intent intent = new Intent(DataOnSDSelection.this, InteractiveActivity.class);
-		intent.putExtra(getString(R.string.TSObject), dataPath + File.separator
-				+ TSFileName);
-		Log.d("dateiNAME",TSFileName);
-		intent.putExtra("ResourceType", "SDCARD");
-		startActivity(intent);
+
+		loadTSFile();
+
+		// Intent intent = new Intent(DataOnSDSelection.this,
+		// InteractiveActivity.class);
+		// intent.putExtra(getString(R.string.TSObject), dataPath +
+		// File.separator
+		// + TSFileName);
+		// Log.d("dateiNAME",TSFileName);
+		// intent.putExtra("ResourceType", "SDCARD");
+		// startActivity(intent);
+	}
+
+	private void loadTSFile() {
+		DownloadFileTask task = new DownloadFileTask();
+		String filepath = dataPath + File.separator + TSFileName;
+
+		task.execute(new String[] { filepath });
+
 	}
 
 	@Override
@@ -180,4 +213,44 @@ public class DataOnSDSelection extends ListActivity {
 		}
 	}
 
+	private class DownloadFileTask extends AsyncTask<String, Void, Boolean> {
+		@Override
+		protected void onPreExecute() {
+			progressBar.setVisibility(View.VISIBLE);
+		}
+
+		@Override
+		protected Boolean doInBackground(String... files) {
+			Boolean response = null;
+			BufferedReader in = null;
+			for (String file : files) {
+				try {
+					in  = new BufferedReader(new FileReader(file));
+				} catch (FileNotFoundException e) {
+					return false;
+				}
+					response = InteractiveActivity.setTSObject(in);				
+			}
+
+			return response;
+		}
+
+		@Override
+		protected void onPostExecute(Boolean result) {
+
+			if (result) {
+				Intent intent = new Intent(DataOnSDSelection.this,
+						InteractiveActivity.class);
+//				intent.putExtra(getString(R.string.TSObject), result);
+//				intent.putExtra("ResourceType", "WFS");
+				startActivity(intent);
+				progressBar.setVisibility(View.INVISIBLE);
+			} else {
+				progressBar.setVisibility(View.INVISIBLE);
+				Toast.makeText(DataOnSDSelection.this, R.string.READFILEERROR,
+						Toast.LENGTH_LONG).show();
+			}
+
+		}
+	}
 }

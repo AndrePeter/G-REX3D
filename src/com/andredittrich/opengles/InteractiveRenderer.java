@@ -287,7 +287,7 @@ public class InteractiveRenderer implements Renderer {
 	}
 
 	public void onDrawFrame(GL10 unused) {
-		Log.d("scale", Float.toString(scale));
+		Log.d("answer","answer");
 		
 		// Redraw background color
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);

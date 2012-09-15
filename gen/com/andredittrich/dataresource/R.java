@@ -21,19 +21,21 @@ public final class R {
         public static final int rotatedown=0x7f020007;
     }
     public static final class id {
-        public static final int AddWFSButton=0x7f060006;
+        public static final int AddWFSButton=0x7f060007;
         public static final int FeatureTypeTitle=0x7f060002;
-        public static final int SDCard=0x7f060009;
+        public static final int SDCard=0x7f06000b;
         public static final int TSFilesTitle=0x7f060004;
-        public static final int WFS=0x7f060008;
+        public static final int WFS=0x7f06000a;
         public static final int WFSBaseURL=0x7f060001;
-        public static final int WFSListTitle=0x7f060005;
+        public static final int WFSListTitle=0x7f060006;
         public static final int WFSName=0x7f060000;
-        public static final int WFS_menu_delete=0x7f06000c;
-        public static final int cancel=0x7f06000a;
-        public static final int data_selection=0x7f060007;
-        public static final int progressbar_Horizontal=0x7f060003;
-        public static final int ts_menu_delete=0x7f06000b;
+        public static final int WFS_menu_delete=0x7f06000e;
+        public static final int cancel=0x7f06000c;
+        public static final int data_selection=0x7f060009;
+        public static final int marker_progress=0x7f060003;
+        public static final int marker_progress1=0x7f060008;
+        public static final int marker_progress2=0x7f060005;
+        public static final int ts_menu_delete=0x7f06000d;
     }
     public static final class layout {
         public static final int addwfsdialog=0x7f030000;
@@ -66,9 +68,11 @@ public final class R {
         public static final int FileSize=0x7f040018;
         public static final int HTTP=0x7f04001a;
         public static final int KVP_Separator=0x7f040020;
+        public static final int NOGOCAD=0x7f040026;
         public static final int NOWEB=0x7f040024;
         public static final int NOWFS=0x7f040025;
         public static final int NoData=0x7f040022;
+        public static final int READFILEERROR=0x7f040027;
         public static final int SDCard=0x7f040003;
         public static final int SRS_TAG=0x7f04001d;
         public static final int TSFilesTitle=0x7f04000d;

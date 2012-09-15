@@ -61,38 +61,13 @@ public class InteractiveActivity extends Activity /*implements SensorEventListen
 	private static InteractiveSurfaceView mGLView;
 	public static GOCADConnector connect3D = new GOCADConnector();
 	public static OGLLayer tsobj;
-//	private static SensorManager mSensorManager;
-//	private float[] rotvec = new float[3];
-//	public static float[] RotMat = new float[16];
 	private FrameLayout frame;
 	private static Button b1;
 	private static Button b2;
-//	public static TextView t;
-//	public static VerticalSeekBar myZoomBar;
 	private static Switch s1;
 	private String intentData = null;
 	private String intentType = null;
 
-	// Camera variables
-//	public static Preview mPreview;
-//	Camera mCamera;
-//	int numberOfCameras;
-//	int cameraCurrentlyLocked;
-//	int defaultCameraId;
-
-	// Location variables
-//	private static LocationManager manager;
-//	private static LocationListener listener;
-//	private LocationProvider lp;
-//	private TextView textview;
-//	private static String providerName;
-
-	// variables to hold "Landeskoordinaten" and geographic coordinates
-//	private double longitude = 0.0;
-//	private double latitude = 0.0;
-//	private double altitude;
-//	CoordinateTrafo ct;
-//	public static int epsg;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -101,14 +76,14 @@ public class InteractiveActivity extends Activity /*implements SensorEventListen
 //		String intentData = null;
 //		String intentType = null;
 
-		Bundle extras = getIntent().getExtras();
-		if (extras != null) {
-			intentData = extras.getString(getString(R.string.TSObject));
-			intentType = extras.getString("ResourceType");
-		}
-
-		getTSObject(intentData, intentType);
-//		Log.d("EPSG", Integer.toString(epsg));
+//		Bundle extras = getIntent().getExtras();
+//		if (extras != null) {
+//			intentData = extras.getString(getString(R.string.TSObject));
+//			intentType = extras.getString("ResourceType");
+//		}
+//
+//		getTSObject(intentData, intentType);
+//		Log.d("daten", intentData);
 //		ct = new CoordinateTrafo(epsg);
 
 //		mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
@@ -126,92 +101,19 @@ public class InteractiveActivity extends Activity /*implements SensorEventListen
 
 		createLayout();
 
-//		manager = (LocationManager) getSystemService(LOCATION_SERVICE);
-
-		// Provider mit grober Aufl�sung
-		// und niedrigen Energieverbrauch
-//		Criteria criteria = new Criteria();
-//		criteria.setAccuracy(Criteria.ACCURACY_FINE);
-//		criteria.setPowerRequirement(Criteria.POWER_HIGH);
-//
-//		// Namen ausgeben
-//		providerName = manager.getBestProvider(criteria, false);
-//
-//		Log.d("???" + TAG, providerName);
-//		// LocationListener-Objekt erzeugen
-//		manager.isProviderEnabled(providerName);
-//
-//		listener = new LocationListener() {
-//			public void onStatusChanged(String provider, int status,
-//					Bundle extras) {
-//				Log.d(TAG, "onStatusChanged()");
-//				Log.d(TAG,
-//						Boolean.toString(manager.isProviderEnabled(provider)));
-//
-//			}
-//
-//			public void onProviderEnabled(String provider) {
-//				Log.d(TAG, "onProviderEnabled()");
-//				textview.setText("enabled");
-//			}
-//
-//			public void onProviderDisabled(String provider) {
-//				Log.d(TAG, "onProviderDisabled()");
-//				textview.setText("disabled");
-//			}
-//
-//			public void onLocationChanged(Location location) {
-//
-//				if (location != null) {
-//					Log.d(TAG, "onLocationChanged()");
-//					latitude = location.getLatitude();
-//					longitude = location.getLongitude();
-//					altitude = location.getAltitude();
-//					String s = "Breite: " + latitude + "\nL�nge: " + longitude
-//							+ "\nH�he: " + altitude + "\nGenauigkeit: "
-//							+ location.getAccuracy();
-//					textview.setText(s);
-//				} else {
-//					Location lastKnownLocation = manager
-//							.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-//
-//					latitude = lastKnownLocation.getLatitude();
-//					longitude = lastKnownLocation.getLongitude();
-//					altitude = lastKnownLocation.getAltitude();
-//
-//					String s = "Breite: " + latitude + "\nL�nge: " + longitude
-//							+ "\nH�he: " + altitude + "\nGenauigkeit: "
-//							+ lastKnownLocation.getAccuracy();
-//					textview.setText(s);
-//				}
-////				double[] gk = cc.latLon2GK(latitude, longitude);
-//				double[] transformedCoordinate = ct.transformCoordinate(latitude, longitude, altitude);
-////				float[] gk = LatLon2GK(latitude, longitude, altitude);
-////				HelloOpenGLES20Renderer.eyeX = (float) (transformedCoordinate[0] - connect3D.correctx);
-////				HelloOpenGLES20Renderer.eyeY = (float) (transformedCoordinate[1] - connect3D.correcty);
-////				HelloOpenGLES20Renderer.eyeZ = (float) (altitude - connect3D.correctz);
-//				
-////				Log.d("dx", Float.toString((float) (3492595.0 - connect3D.correctx)));
-////				Log.d("dy", Float.toString((float) (5341589.0 - connect3D.correcty)));
-////				Log.d("dz", Float.toString((float) (1000.0 - connect3D.correctz)));
-////				HelloOpenGLES20Renderer.eyeX = (float) (3492595.0 - connect3D.correctx);
-////				HelloOpenGLES20Renderer.eyeY = (float) (5341589.0 - connect3D.correcty);
-////				HelloOpenGLES20Renderer.eyeZ = (float) (1000.0 - connect3D.correctz);
-////				InterpolateCoordinates();
-//				Log.d("rechtswert ", Double.toString(transformedCoordinate[0]));
-//				Log.d("hochwert ", Double.toString(transformedCoordinate[1]));
-////				mGLView.requestRender();
-//
-//			}
-//				
-//		};
-////		 manager.requestLocationUpdates(providerName, 0, 0,
-////		 listener);
-//		// manager.
 
 		setContentView(frame);
 	}
 
+	public static Boolean setTSObject(BufferedReader br) {
+		try {
+			tsobj = connect3D.readTSObject(br);
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
+	}
+	
 	private void getTSObject(String intentData, String intentType) {
 		try {
 			BufferedReader in = null;
@@ -221,15 +123,8 @@ public class InteractiveActivity extends Activity /*implements SensorEventListen
 				in = new BufferedReader(new FileReader(intentData));
 			}
 
-			Log.d("vorher", "vorher");
 			tsobj = connect3D.readTSObject(in);
-//			ARActivity.tsobj = tsobj;
 			Log.d("layername", tsobj.getName());
-			Log.d("color", Integer.toString(tsobj.getColor()));
-			Log.d("nachher", "nachher");
-
-			// important: close the stream for every file
-
 			in.close();
 
 		} catch (FileNotFoundException e) {

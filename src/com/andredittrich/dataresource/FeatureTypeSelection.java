@@ -1,14 +1,18 @@
 package com.andredittrich.dataresource;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.DefaultHttpClient;
 
@@ -21,6 +25,7 @@ import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.SimpleAdapter;
+import android.widget.Toast;
 
 import com.andredittrich.view3d.ARActivity;
 import com.andredittrich.view3d.InteractiveActivity;
@@ -62,10 +67,13 @@ public class FeatureTypeSelection extends ListActivity {
 				android.R.id.text2 });
 
 		setListAdapter(adapter);
-
+		
+		
 		setContentView(R.layout.listfeaturetypes);
-		progressBar = (ProgressBar)findViewById(R.id.progressbar_Horizontal);
-	    progressBar.setProgress(0);
+		progressBar = (ProgressBar)findViewById(R.id.marker_progress);
+		progressBar.setVisibility(View.INVISIBLE);
+
+//	    progressBar.setProgress(0);
 		
 //		setContentView(R.layout.listfeaturetypes);
 		// getListView().setOnItemClickListener(this);
@@ -93,12 +101,17 @@ public class FeatureTypeSelection extends ListActivity {
 		List<HashMap<String, String>> fillMaps = new ArrayList<HashMap<String, String>>();
 		for (int i = 0; i < intentData.length; i = i + 2) {
 			HashMap<String, String> map = new HashMap<String, String>();
-			Log.d("epsg", intentData[i]);
+//			Log.d("epsg", intentData[i]);
 			if (!intentData[i].equalsIgnoreCase("wfs")) {
 			map.put(ROW_ID_1, intentData[i]);
 			//map.put(ROW_ID_2, intentData[i].split(":")[1]);
+			try {
 			ARActivity.epsg = Integer.parseInt(intentData[i+1].split("EPSG:")[1]);
 			map.put(ROW_ID_3, intentData[i+1].split("crs:")[1]);
+			} catch (ArrayIndexOutOfBoundsException e) {
+				Log.w("EPSG"," Kein EPSG bestimmber!");
+			}
+			
 			fillMaps.add(map);
 			}
 		}
@@ -117,72 +130,59 @@ public class FeatureTypeSelection extends ListActivity {
 	}
 
 	private class DownloadWebPageTask extends
-	AsyncTask<String, Void, ArrayList<String>> {
+	AsyncTask<String, Void, Boolean> {
 //		int myProgress;
 		
 		@Override
-		protected ArrayList<String> doInBackground(String... urls) {
-			ArrayList<String> response = new ArrayList<String>(0);
+		protected Boolean doInBackground(String... urls) {
+			Boolean response = null;
 			for (String url : urls) {
 				DefaultHttpClient client = new DefaultHttpClient();
 				HttpGet httpGet = new HttpGet(url);
-				try {
-//					SAXParserFactory spf = SAXParserFactory.newInstance();
-//					SAXParser sp = spf.newSAXParser();
-//					//
-//					XMLReader xr = sp.getXMLReader();
-//					//
-//					XMLHandler Handler = new XMLHandler(getSearchTag(url));
-//					xr.setContentHandler(Handler);
-					HttpResponse execute = client.execute(httpGet);
-					InputStream content = execute.getEntity().getContent();
-//					InputSource inSource = new InputSource(content);
-//					xr.parse(inSource);
-					
-					String res = readInputStreamAsString(content);
-					
-					
-					response.add(res);
-					
-					
-//					Log.d("versuch", res);
-					
-					
-					
-//					while(myProgress<100){
-//					    myProgress++;
-//					    onProgressUpdate(myProgress);
-//					       SystemClock.sleep(100);
-//					   }
-//					response = Handler.data;
-						
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
+				
+					HttpResponse execute;
+					try {
+						execute = client.execute(httpGet);
+						InputStream content = execute.getEntity().getContent();						
+						String res = readInputStreamAsString(content);
+						if (!res.startsWith("<?xml")) {
+							BufferedReader br;
+							br = new BufferedReader(new StringReader(res));
+							response = InteractiveActivity.setTSObject(br);
+							} else {
+								response = false;
+							}						
+					} catch (ClientProtocolException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 			}
 			return response;
 		}
 
 		@Override
-		protected void onPostExecute(ArrayList<String> result) {
-						
-			serviceResponse = result.toString();
-			
-			Intent intent = new Intent(FeatureTypeSelection.this, InteractiveActivity.class);
-			intent.putExtra(getString(R.string.TSObject), serviceResponse);
-			intent.putExtra("ResourceType", "WFS");
-			startActivity(intent);
+		protected void onPostExecute(Boolean result) {
+			if (result) {
+				Intent intent = new Intent(FeatureTypeSelection.this,
+						InteractiveActivity.class);
+//				intent.putExtra(getString(R.string.TSObject), result);
+//				intent.putExtra("ResourceType", "WFS");
+				startActivity(intent);
+				progressBar.setVisibility(View.INVISIBLE);
+			} else {
+				progressBar.setVisibility(View.INVISIBLE);
+				Toast.makeText(FeatureTypeSelection.this, R.string.NOGOCAD,
+						Toast.LENGTH_LONG).show();
+			}
 
 		}
 	
-//		protected void onProgressUpdate(Integer... values) {
-//		   // TODO Auto-generated method stub
-//		   progressBar.setProgress(values[0]);
-//		  }
-//		protected void onPreExecute() {
-//			   // TODO Auto-generated method stub
-//			   myProgress = 0;
-//			  }
+		protected void onPreExecute() {
+			   progressBar.setVisibility(View.VISIBLE);
+			  }
 	}
 
 	public void readWebpage(View view) {

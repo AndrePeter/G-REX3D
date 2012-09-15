@@ -37,6 +37,7 @@ import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Toast;
 
@@ -76,6 +77,8 @@ public class WFSSelection extends ListActivity {
 	 * service
 	 */
 	public static String[] serviceResponse;
+	
+	public static ProgressBar progressBar;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -88,6 +91,8 @@ public class WFSSelection extends ListActivity {
 		setListAdapter(mAdapter);
 
 		setContentView(R.layout.listviewwithbutton);
+		progressBar = (ProgressBar) findViewById(R.id.marker_progress1);
+		progressBar.setVisibility(View.INVISIBLE);
 		addWFS = (Button) findViewById(R.id.AddWFSButton);
 		addWFS.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {
@@ -227,6 +232,11 @@ public class WFSSelection extends ListActivity {
 	private class DownloadWebPageTask extends
 			AsyncTask<String, Void, ArrayList<String>> {
 		@Override
+		protected void onPreExecute() {
+			progressBar.setVisibility(View.VISIBLE);
+		}
+
+		@Override
 		protected ArrayList<String> doInBackground(String... urls) {
 			ArrayList<String> response = null;
 //			HashMap<String, String> response = null;
@@ -269,9 +279,12 @@ public class WFSSelection extends ListActivity {
 						FeatureTypeSelection.class);
 				intent.putExtra(FEATURE_TYPE_INFOS, serviceResponse);
 				startActivity(intent);
+				progressBar.setVisibility(View.INVISIBLE);
 			} else {
+				progressBar.setVisibility(View.INVISIBLE);
 				Toast.makeText(WFSSelection.this, R.string.NOWFS, Toast.LENGTH_LONG).show();
 			}
+			
 			
 		}
 	}

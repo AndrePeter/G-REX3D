@@ -47,8 +47,10 @@
     <string name="FAILED">failed</string>
     <string name="KVP_Separator">&amp;</string>
     <string name="DataFolder">data</string>
-    <string name="NoData">no suitable data</string>
+    <string name="NoData">No suitable data</string>
     <string name="Extensions">ts,xml</string>
     <string name="NOWEB">No connection to network!</string>
-	<string name="NOWFS">No WFS or WFS not online!</string>    
+	<string name="NOWFS">No WFS or WFS not online!</string>   
+	<string name="NOGOCAD">No GOCAD-Format available</string>
+	<string name="READFILEERROR">Can\'t read file</string>   
 </resources>
