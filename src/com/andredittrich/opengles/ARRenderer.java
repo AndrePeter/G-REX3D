@@ -23,12 +23,14 @@ public static final boolean ZoomDown = false;
 	public static float eyeYold = 0.0f;
 	public static float eyeZold = 0.0f;
 	public static float XX = 0.0f;
+	public static boolean test = false;
 	private int muMVPMatrixHandle;
 	private int PuMVPMatrixHandle;
 
 	private float[] mMVPMatrix = new float[16];
-	private float[] mMVPLMatrix = new float[16];
-	private float[] mMMatrix = new float[16];
+	private float[] minvMatrix = new float[16];
+	private float[] mMVMatrix = new float[16];
+	public static float[] mMMatrix = new float[16];
 	private float[] mMOMatrix = new float[16];
 	private float[] mVMatrix = new float[16];
 	private float[] mProjMatrix = new float[16];
@@ -76,6 +78,8 @@ public static final boolean ZoomDown = false;
 	 */
 	private final float[] mLightPosInModelSpace = new float[] { -5000f, 5000f,
 			20000f, 1.0f };
+//	private final float[] mLightPosInModelSpace = new float[] { 0f, -10000f,
+//			10000f, 1.0f };
 	/**
 	 * Used to hold the current position of the light in world space (after
 	 * transformation via model matrix).
@@ -283,84 +287,39 @@ public static final boolean ZoomDown = false;
 
 		mMVMatrixHandle = GLES20.glGetUniformLocation(mProgram, "u_MVMatrix");
 		mLightPosHandle = GLES20.glGetUniformLocation(mProgram, "u_LightPos");
-
+//		Matrix.setLookAtM(mVMatrix, 0, eyeX, eyeY, xExtent, 0f, 0f, 0f, 0f, 1.0f,
+//				0.0f);
 	}
 
 	public void onDrawFrame(GL10 unused) {
-//		Log.d("out","out");
 		// Redraw background color
 		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-
 		// Add program to OpenGL environment
-		GLES20.glUseProgram(mProgram);
-		
+		GLES20.glUseProgram(mProgram);		
 		// Set the buffer to starting position
 		layer.getVertexBuffer().position(0);
 		layer.getNormalBuffer().position(0);
-
 		// Set the vertex attribute pointers
 		GLES20.glVertexAttribPointer(mNormalHandle, 3, GLES20.GL_FLOAT, false,
 				0, layer.getNormalBuffer());
 		GLES20.glVertexAttribPointer(myPositionHandle, 3, GLES20.GL_FLOAT,
 				false, 0, layer.getVertexBuffer());
 
-		// Check for INTERACTIVE or AUGMENTED REALITY mode
-		
-//			Log.e("AR", "YES");
-			// Use rotation matrix of device orientation sensors as ModelMatrix
-//			Matrix.invertM(mMMatrix, 0, GREX3DActivity.RotMat, 0);
-			mMMatrix = ARActivity.RotMat;
-			Matrix.setIdentityM(mMOMatrix, 0);
-//			
-			eyeVector = new float[] {eyeX, eyeY, eyeZ, 1.f};
+		// TRANSFORMATIONS !!!
+		Matrix.setIdentityM(mMOMatrix, 0);
+		Matrix.setIdentityM(mVMatrix, 0);
+			mMMatrix = ARActivity.Q;
+			Matrix.translateM(mVMatrix, 0, mMOMatrix, 0, eyeX, eyeY, -eyeZ);
+			Matrix.multiplyMM(mMVMatrix, 0, mMMatrix, 0, mVMatrix, 0);
 			
-			Matrix.multiplyMV(neweyeVector, 0, mMMatrix, 0, eyeVector, 0);
-//			Matrix.setLookAtM(mVMatrix, 0, 0, 0, XX, myNy[0], myNy[1], 0f, 0f,
-//					1.0f, 0.0f);
-			Matrix.rotateM(mMOMatrix, 0, ARActivity.rotvec[0]*180.0f/(float)Math.PI, 0, 0, 1);
-//			Log.d("azimuth", Float.toString(ARActivity.rotvec[0]));
-//			VIELLEICHT NICHT �BER SETLOOLAT SONDERN STATTDESSEN TRANSLATION IN
-//			EYEPOINT DANN ROTATION (INVERS?) UND TRANSLATION WIEDER ZUR�CK !!! 
-			float[] myNy = calcViewCenter();
-//			eyeX = neweyeVector[0];
-//			eyeY = neweyeVector[1];
-//			eyeZ = neweyeVector[2];
-			
-//			Matrix.setLookAtM(mVMatrix, 0, eyeX, eyeY, eyeZ, 0, 0, 0f, 0f,
-//					 1.0f, 0.0f);
-//			Matrix.setLookAtM(mVMatrix, 0, neweyeVector[0], neweyeVector[1], neweyeVector[2], myNy[0], myNy[1], 0f, 0f,
-//					 1.0f, 0.0f);	
-			 
-			
-//			LATEST CORRECT !!!
-//			Matrix.setLookAtM(mVMatrix, 0, eyeX, eyeY, eyeZ, myNy[0], myNy[1], -XX, 0f,
-//			 1.0f, 0.0f);
-			 
-			 Matrix.setLookAtM(mVMatrix, 0, eyeX, eyeY, eyeZ, myNy[0], myNy[1], myNy[2], 0f,
-					 1.0f, 0.0f); 
-			 
-//			Matrix.transposeM(mMMatrix, ey0, GREX3DActivity.RotMat, 0);
-		
-
-		// Combine ModelMatrix and ViewMatrix
-//			 System.arraycopy(mVMatrix, 0, mMVPLMatrix, 0, 16);
-		Matrix.multiplyMM(mMVPLMatrix, 0, mVMatrix, 0, mMOMatrix, 0);
-
 		// Calculate light position
 		calcLightPos();
-//		Matrix.setIdentityM(mLightModelMatrix, 0);
-//		Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0,
-//				mLightPosInModelSpace, 0);
-//		Matrix.multiplyMV(mLightPosInEyeSpace, 0, mMVPLMatrix, 0,
-//				mLightPosInWorldSpace, 0);
-//		GLES20.glUniform3f(mLightPosHandle, mLightPosInEyeSpace[0],
-//				mLightPosInEyeSpace[1], mLightPosInEyeSpace[2]);
-		
+
 		// Transmit light matrix to shader
-		GLES20.glUniformMatrix4fv(mMVMatrixHandle, 1, false, mMVPLMatrix, 0);
+		GLES20.glUniformMatrix4fv(mMVMatrixHandle, 1, false, mMVMatrix, 0);
 
 		// Apply a ModelView Projection transformation
-		Matrix.multiplyMM(mTemporaryMatrix, 0, mProjMatrix, 0, mMVPLMatrix, 0);
+		Matrix.multiplyMM(mTemporaryMatrix, 0, mProjMatrix, 0, mMVMatrix, 0);
 		System.arraycopy(mTemporaryMatrix, 0, mMVPMatrix, 0, 16);
 		
 		// Transmit ModelViewProjection Matrix to shader
@@ -381,7 +340,7 @@ public static final boolean ZoomDown = false;
 		Matrix.setIdentityM(mLightModelMatrix, 0);
 		Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0,
 				mLightPosInModelSpace, 0);
-		Matrix.multiplyMV(mLightPosInEyeSpace, 0, mMVPLMatrix, 0,
+		Matrix.multiplyMV(mLightPosInEyeSpace, 0, mMVMatrix, 0,
 				mLightPosInWorldSpace, 0);
 		GLES20.glUniform3f(mLightPosHandle, mLightPosInEyeSpace[0],
 				mLightPosInEyeSpace[1], mLightPosInEyeSpace[2]);
@@ -397,27 +356,11 @@ public static final boolean ZoomDown = false;
 		startVec[2] = -1f;
 		startVec[3] = 1f;
 		Matrix.multiplyMV(oriVec, 0, mMMatrix, 0, startVec, 0);
-//		float lambda = xExtent / oriVec[2];
-//		float my = lambda * oriVec[0];
-//		float ny = lambda * oriVec[1];
-//		Log.d("orix", Float.toString(oriVec[0]));
-//		Log.d("oriy", Float.toString(oriVec[1]));
-//		Log.d("oriz", Float.toString(oriVec[2]));
 		
-//		 float lambda = eyeVector[2]/ oriVec[2];
-//		 float my = eyeVector[0] + lambda*oriVec[0];
-//		 float ny = eyeVector[1] + lambda*oriVec[1];
 		 float my = -oriVec[0] + eyeVector[0];
 		 float ny = -oriVec[1] + eyeVector[1];
 		 float eta = oriVec[2] + eyeVector[2];
-		 if (Math.abs(eta) > Math.abs(eyeVector[2]) ) {
-			 Log.d("mydiff", Float.toString(oriVec[0]));
-			 Log.d("nydiff", Float.toString(oriVec[1]));
-			 Log.d("test", Float.toString(eta));
-		 }
-//		 float my = ARActivity.rotvec[2] + eyeVector[0];
-//		 float ny = ARActivity.rotvec[0] + eyeVector[1];
-//		 float eta = ARActivity.rotvec[1] + eyeVector[2];
+
 		return new float[] {my, ny, eta};
 	}
 
@@ -447,7 +390,7 @@ public static final boolean ZoomDown = false;
 		float ratio = (float) width / height;
 		// this projection matrix is applied to object coodinates
 		// in the onDrawFrame() method
-		Matrix.frustumM(mProjMatrix, 0, -ratio, ratio, -1, 1, 1f, 200000);
+		Matrix.frustumM(mProjMatrix, 0, -ratio, ratio, -1, 1, 1f, xExtent + 5000);
 
 	}
 

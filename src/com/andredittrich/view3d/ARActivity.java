@@ -21,6 +21,7 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.opengl.GLSurfaceView;
+import android.opengl.Matrix;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -58,17 +59,18 @@ public class ARActivity extends Activity implements SensorEventListener {
 	
 	private static final String TAG = ARActivity.class.getSimpleName();
 	private static ARSurfaceView mGLView;
-	private static GOCADConnector connect3D = new GOCADConnector();
 	public static OGLLayer tsobj;
 	private static SensorManager mSensorManager;
 	public static float[] rotvec = new float[3];
+	public static float[] Q = new float[16];
 	public static float[] RotMat = new float[16];
 	private FrameLayout frame;
 	public static VerticalSeekBar myZoomBar;
 	private static Switch s1;
+	public static TextView t1;
+	public static TextView t2;
+	public static TextView t3;
 
-	private String intentData = null;
-	private String intentType = null;
 	// Camera variables
 	public static CameraPreview mPreview;
 	Camera mCamera;
@@ -87,6 +89,9 @@ public class ARActivity extends Activity implements SensorEventListener {
 	private static double longitude = 0.0;
 	private static double latitude = 0.0;
 	private static double altitude;
+	public static float azimuth = 0f;
+	public static float pitch = 0f;
+	public static float roll = 0f;
 	private static CoordinateTrafo ct;
 	public static int epsg;
 
@@ -196,47 +201,13 @@ public class ARActivity extends Activity implements SensorEventListener {
 				String s = "Hochwert: " + ARRenderer.eyeY + "\nRechtswert: " + ARRenderer.eyeX
 						+ "\nHöhe: " + ARRenderer.eyeZ;
 				textview.setText(s);
-//				mGLView.requestRender();
-
 			}
 				
 		};
-////		 manager.requestLocationUpdates(providerName, 0, 0,
-//		 listener);
-		// manager.
 		manager.requestLocationUpdates(providerName, 0, 0, listener);
-//		setContentView(frame);
 	}
 
-	private void getTSObject(String intentData, String intentType) {
-		try {
-			BufferedReader in = null;
-			if (intentType.equalsIgnoreCase("WFS")) {
-				in = new BufferedReader(new StringReader(intentData));
-			} else if (intentType.equalsIgnoreCase("SDCARD")) {
-				in = new BufferedReader(new FileReader(intentData));
-			}
-
-			Log.d("vorherAR", "vorher");
-			tsobj = connect3D.readTSObject(in);
-			Log.d("layername AR", tsobj.getName());
-			Log.d("colorAR", Integer.toString(tsobj.getColor()));
-			Log.d("nachherAR", "nachher");
-
-			// important: close the stream for every file
-
-			in.close();
-
-		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
-
+	
 	@Override
 	protected void onPause() {
 		super.onPause();
@@ -259,16 +230,6 @@ public class ARActivity extends Activity implements SensorEventListener {
 	protected void onResume() {
 		super.onResume();
 
-//		if (!AR) {
-//			resetUI();
-//		} else {
-//			setARprefs();
-//		}
-//		
-//		// The following call resumes a paused rendering thread.
-//		// If you de-allocated graphic objects for onPause()
-//		// this is a good place to re-allocate them.
-//
 		mGLView.onResume();
 		mCamera = Camera.open();
 		cameraCurrentlyLocked = defaultCameraId;
@@ -276,11 +237,11 @@ public class ARActivity extends Activity implements SensorEventListener {
 		mSensorManager.registerListener(this,
 		 mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
 		 SensorManager.SENSOR_DELAY_FASTEST);
+
 	}
 
 	@Override
 	protected void onStop() {
-		// TODO Auto-generated method stub
 		super.onStop();
 		
 		mGLView.onPause();
@@ -335,7 +296,7 @@ public class ARActivity extends Activity implements SensorEventListener {
 		rel.setLayoutParams(params);
 
 		myZoomBar = new VerticalSeekBar(this);
-		myZoomBar.setMax((int) ARRenderer.xExtent);
+		myZoomBar.setMax((int) ARRenderer.xExtent);//InteractiveActivity.connect3D.maxZ + 10);
 		Log.d("xExtent", Float.toString(ARRenderer.xExtent));
 		Log.d("setMax", Float.toString(myZoomBar.getMax()));
 		myZoomBar.setProgress(myZoomBar.getMax());
@@ -354,6 +315,26 @@ public class ARActivity extends Activity implements SensorEventListener {
 		textParams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
 //
 		rel.addView(s1);
+		
+		LinearLayout lin = new LinearLayout(this);
+		t1 = new TextView(this);
+		t1.setText(Float.toString(azimuth));
+		
+		t2 = new TextView(this);
+		t2.setText(Float.toString(pitch));
+		
+		t3 = new TextView(this);
+		t3.setText(Float.toString(roll));
+		
+		LayoutParams linparams = new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+		linparams.addRule(RelativeLayout.ALIGN_LEFT);
+		linparams.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+		
+		lin.addView(t1);
+		lin.addView(t2);
+		lin.addView(t3);
+		lin.setOrientation(LinearLayout.VERTICAL);
+		rel.addView(lin, linparams);
 		rel.addView(myZoomBar, zoomBarParams);
 		rel.addView(textview, textParams);
 		
@@ -388,46 +369,10 @@ public class ARActivity extends Activity implements SensorEventListener {
 		}
 		myZoomBar.setProgress(myZoomBar.getMax());
 		myZoomBar.setEnabled(false);
-//		try {
-//			mSensorManager.registerListener(ARActivity.class.newInstance(),
-//					mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
-//					SensorManager.SENSOR_DELAY_FASTEST);
-//		} catch (InstantiationException e) {
-//			e.printStackTrace();
-//		} catch (IllegalAccessException e) {
-//			e.printStackTrace();
-//		}
-//		InterpolateCoordinates();
-		
-	}
-	
-	public static void InterpolateCoordinates() {
-		// TODO Auto-generated method stub
-		double x0 = connect3D.getMinX() + connect3D.getCorrectx();
-		double y0 = connect3D.getMinY() + connect3D.getCorrecty();
-		double x1 = connect3D.getMaxX() + connect3D.getCorrectx();
-		double y1 = connect3D.getMaxY() + connect3D.getCorrecty();
-		
-		double dy = y1-y0;
-//		Log.d("dy", Double.toString(dy));
-		double dx = x1-x0;
-		double m = dy/dx;
-		double t = y1 - m*x1;
-		double x = x0;
-		for (float y = (float) y0; y<=y1; y= y+0.3f) {
-			
-			x = (y-t)/m;
-			Log.d("dx", Float.toString((float) (x - connect3D.getCorrectx())));
-			Log.d("dy", Float.toString((float) (y - connect3D.getCorrecty())));
-			Log.d("dz", Float.toString((float) (1080.0 - connect3D.getCorrectz())));
-			
-			
-			ARRenderer.eyeX = (float) (x - connect3D.getCorrectx());
-			ARRenderer.eyeY = (float) (y - connect3D.getCorrecty());
-			ARRenderer.eyeZ = (float) (1080.0 - connect3D.getCorrectz());
-		}						
-	}
 
+		
+	}
+		
 	public void initListeners() {
 		mSensorManager.registerListener(this,
 				mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
@@ -440,13 +385,43 @@ public class ARActivity extends Activity implements SensorEventListener {
 	}
 
 	public void onSensorChanged(SensorEvent event) {
-//		Log.d("test","test");
-		System.arraycopy(event.values, 0, rotvec, 0, 3);
-		SensorManager.getRotationMatrixFromVector(RotMat, event.values);
-		SensorManager.getOrientation(RotMat, rotvec);
-		/// if device ALWAYS LANDSCAPE !!!!!!
+
+		float[] q = new float[4];
+		SensorManager.getQuaternionFromVector(q, event.values);
+		// Build quaternion-based rotation
+//		Q[0] = (float) (1-2*Math.pow(q[2],2)-2*Math.pow(q[3],2));
+//		Q[1] = (float) (2*q[1]*q[2]-2*q[3]*q[0]);
+//		Q[2] = (float) (2*q[1]*q[3]+2*q[2]*q[0]);
+//		Q[3] = 0.0f;
+//		Q[4] = (float) (2*q[1]*q[2]+2*q[3]*q[0]);
+//		Q[5] = (float) (1-2*Math.pow(q[1],2)-2*Math.pow(q[3],2));
+//		Q[6] = (float) (2*q[3]*q[2]-2*q[1]*q[0]);
+//		Q[7] = 0.0f;
+//		Q[8] = (float) (2*q[3]*q[1]-2*q[2]*q[0]);
+//		Q[9] = (float) (2*q[3]*q[2]+2*q[1]*q[0]);
+//		Q[10] = (float) (1-2*Math.pow(q[1],2)-2*Math.pow(q[2],2));
+//		Q[11] = 0.0f;
+//		Q[12] = 0.0f;
+//		Q[13] = 0.0f;
+//		Q[14] = 0.0f;
+//		Q[15] = 1.0f;	
+		
+		SensorManager.getRotationMatrixFromVector(Q, event.values);
+		SensorManager.getOrientation(Q, rotvec);
+		
+		pitch = (float) (rotvec[1]*180.0f/Math.PI);
+		roll = (float) (rotvec[2]*180.0f/Math.PI);
+		azimuth = (float) (rotvec[0]*180.0f/Math.PI);
+					
+			t2.setText("pitch " + Float.toString(pitch));
+			t3.setText("roll " + Float.toString(roll));
+			t1.setText("azimuth " + Float.toString(azimuth));
+		
+				
+		/// if device ALWAYS PORTRAIT !!!!
 //		SensorManager.remapCoordinateSystem(RotMat, SensorManager.AXIS_Y,
 //				SensorManager.AXIS_MINUS_X, RotMat);
+		
 		mGLView.requestRender();
 
 	}

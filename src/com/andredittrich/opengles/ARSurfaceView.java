@@ -34,7 +34,7 @@ public class ARSurfaceView extends GLSurfaceView {
 		getHolder().setFormat(PixelFormat.TRANSPARENT);
 //		getHolder().setFormat(PixelFormat.TRANSLUCENT);		
 		// Render the view only when there is a change
-		setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);//CONTINUOUSLY);
+		setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
 	}
 	
 	

@@ -26,7 +26,7 @@ public class InteractiveRenderer implements Renderer {
 	private int PuMVPMatrixHandle;
 
 	private float[] mMVPMatrix = new float[16];
-	private float[] mMVPLMatrix = new float[16];
+	private float[] mMVMatrix = new float[16];
 	private float[] mMMatrix = new float[16];
 	private float[] mVMatrix = new float[16];
 	private float[] mProjMatrix = new float[16];
@@ -74,6 +74,8 @@ public class InteractiveRenderer implements Renderer {
 	 */
 	private final float[] mLightPosInModelSpace = new float[] { -5000f, 5000f,
 			20000f, 1.0f };
+//	private final float[] mLightPosInModelSpace = new float[] { 0f, -10000f,
+//			10000f, 1.0f };
 	/**
 	 * Used to hold the current position of the light in world space (after
 	 * transformation via model matrix).
@@ -328,7 +330,7 @@ public class InteractiveRenderer implements Renderer {
 
 
 		// Combine ModelMatrix and ViewMatrix 
-		Matrix.multiplyMM(mMVPLMatrix, 0, mVMatrix, 0, mMMatrix, 0);
+		Matrix.multiplyMM(mMVMatrix, 0, mVMatrix, 0, mMMatrix, 0);
 
 		// Calculate light position
 		calcLightPos();
@@ -341,15 +343,15 @@ public class InteractiveRenderer implements Renderer {
 //				mLightPosInEyeSpace[1], mLightPosInEyeSpace[2]);
 		
 		// Transmit light matrix to shader
-		GLES20.glUniformMatrix4fv(mMVMatrixHandle, 1, false, mMVPLMatrix, 0);
+		GLES20.glUniformMatrix4fv(mMVMatrixHandle, 1, false, mMVMatrix, 0);
 
 		// Apply a ModelView Projection transformation
-		Matrix.multiplyMM(mTemporaryMatrix, 0, mProjMatrix, 0, mMVPLMatrix, 0);
+		Matrix.multiplyMM(mTemporaryMatrix, 0, mProjMatrix, 0, mMVMatrix, 0);
 		System.arraycopy(mTemporaryMatrix, 0, mMVPMatrix, 0, 16);
 		
 		// Transmit ModelViewProjection Matrix to shader
 		GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, mMVPMatrix, 0);
-		
+//		GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, mProjMatrix, 0);
 		// Draw geometry front (triangles) and backside (lines)
 		GLES20.glDrawElements(GLES20.GL_TRIANGLES, layer.getIndexBuffer()
 				.capacity(), GLES20.GL_UNSIGNED_INT, layer.getIndexBuffer());
@@ -365,7 +367,7 @@ public class InteractiveRenderer implements Renderer {
 		Matrix.setIdentityM(mLightModelMatrix, 0);
 		Matrix.multiplyMV(mLightPosInWorldSpace, 0, mLightModelMatrix, 0,
 				mLightPosInModelSpace, 0);
-		Matrix.multiplyMV(mLightPosInEyeSpace, 0, mMVPLMatrix, 0,
+		Matrix.multiplyMV(mLightPosInEyeSpace, 0, mMVMatrix, 0,
 				mLightPosInWorldSpace, 0);
 		GLES20.glUniform3f(mLightPosHandle, mLightPosInEyeSpace[0],
 				mLightPosInEyeSpace[1], mLightPosInEyeSpace[2]);

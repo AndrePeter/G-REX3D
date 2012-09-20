@@ -58,10 +58,10 @@ public class GOCADConnector {
 	 */
 	private float maxY;
 	private float maxX;
-	private float maxZ;
+	public float maxZ;
 	private float minY;
 	private float minX;
-	private float minZ;
+	public float minZ;
 
 	/*
 	 * correction subtrahends for the translation into the origin
@@ -346,6 +346,7 @@ public class GOCADConnector {
 		// }
 		
 		InteractiveRenderer.xExtent = (maxX-minX);
+		Log.d("xextent", Float.toString((maxX-minX)));
 		ARRenderer.xExtent = (maxX-minX);
 		Log.d("xExtent", Float.toString(InteractiveRenderer.xExtent));
 //		HelloOpenGLES20Renderer.yExtent = (maxY-minY);

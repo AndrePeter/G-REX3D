@@ -82,9 +82,9 @@ public class VerticalSeekBar extends SeekBar {
         case MotionEvent.ACTION_UP:
             setProgress(getMax() - (int) (getMax() * event.getY() / getHeight()));
             ARRenderer.eyeZ = getMax() - (int) (getMax() * event.getY() / getHeight());
-            Log.d("eye", Float.toString(ARRenderer.eyeZ));
             ARRenderer.XX = getMax() - (int) (getMax() * event.getY() / getHeight());
-//            Log.d("WERT", Float.toString(HelloOpenGLES20Renderer.eyeZ));
+            
+            Log.d("WERT", Float.toString(ARRenderer.XX));
             onSizeChanged(getWidth(), getHeight(), 0, 0);
             
             break;
