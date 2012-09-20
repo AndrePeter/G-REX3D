@@ -83,12 +83,13 @@ public class ARActivity extends Activity implements SensorEventListener {
 	private static LocationListener listener;
 	private LocationProvider lp;
 	private TextView textview;
+	public static float minZ;
 	private static String providerName;
 
 	// variables to hold "Landeskoordinaten" and geographic coordinates
 	private static double longitude = 0.0;
 	private static double latitude = 0.0;
-	private static double altitude;
+	private static double altitude = 0.0;
 	public static float azimuth = 0f;
 	public static float pitch = 0f;
 	public static float roll = 0f;
@@ -296,12 +297,13 @@ public class ARActivity extends Activity implements SensorEventListener {
 		rel.setLayoutParams(params);
 
 		myZoomBar = new VerticalSeekBar(this);
-		myZoomBar.setMax((int) ARRenderer.xExtent);//InteractiveActivity.connect3D.maxZ + 10);
+		minZ = InteractiveActivity.connect3D.minZ;
+		myZoomBar.setMax((int) (ARRenderer.xExtent));//InteractiveActivity.connect3D.maxZ + 10);
 		Log.d("xExtent", Float.toString(ARRenderer.xExtent));
 		Log.d("setMax", Float.toString(myZoomBar.getMax()));
 		myZoomBar.setProgress(myZoomBar.getMax());
 		myZoomBar.setEnabled(false);
-		myZoomBar.setOnSeekBarChangeListener(myZoomBarOnSeekBarChangeListener);
+//		myZoomBar.setOnSeekBarChangeListener(myZoomBarOnSeekBarChangeListener);
 		RelativeLayout.LayoutParams zoomBarParams = new RelativeLayout.LayoutParams(
 				LayoutParams.WRAP_CONTENT, LayoutParams.FILL_PARENT);
 		zoomBarParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
@@ -343,30 +345,16 @@ public class ARActivity extends Activity implements SensorEventListener {
 	}
 
 	public static void setARprefs() {
-		manager.requestLocationUpdates(providerName, 0, 0, listener);
-		Location lastKnownLocation = manager
-				.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-		if (lastKnownLocation != null) {
-		latitude = lastKnownLocation.getLatitude();
-		longitude = lastKnownLocation.getLongitude();
-		altitude = lastKnownLocation.getAltitude();
-		double[] transformedCoordinate = ct.transformCoordinate(latitude, longitude, altitude);
-		ARRenderer.eyeX = (float) (transformedCoordinate[0] - InteractiveActivity.connect3D.getCorrectx());
-		ARRenderer.eyeY = (float) (transformedCoordinate[1] - InteractiveActivity.connect3D.getCorrecty());
-		ARRenderer.eyeZ = (float) (altitude - InteractiveActivity.connect3D.getCorrectz());
+		if (!(altitude == 0)) {
+		ARRenderer.eyeZ = (float) (altitude - InteractiveActivity.connect3D.getCorrectz());	
 		} else {
-			ARRenderer.eyeZ = ARRenderer.xExtent;
-
+		ARRenderer.eyeZ = ARRenderer.xExtent;
 		}
 		
 		ARRenderer.XX = 0.0f;
 		mPreview.mSurfaceView.setVisibility(SurfaceView.VISIBLE);
-		if (altitude != 0) {
-			myZoomBar.setMax((int) altitude + 10);
-		} else {
-		myZoomBar.setMax((int) ARRenderer.xExtent);
-		}
+		
+		myZoomBar.setMax((int) ARRenderer.eyeZ);
 		myZoomBar.setProgress(myZoomBar.getMax());
 		myZoomBar.setEnabled(false);
 
@@ -386,26 +374,6 @@ public class ARActivity extends Activity implements SensorEventListener {
 
 	public void onSensorChanged(SensorEvent event) {
 
-		float[] q = new float[4];
-		SensorManager.getQuaternionFromVector(q, event.values);
-		// Build quaternion-based rotation
-//		Q[0] = (float) (1-2*Math.pow(q[2],2)-2*Math.pow(q[3],2));
-//		Q[1] = (float) (2*q[1]*q[2]-2*q[3]*q[0]);
-//		Q[2] = (float) (2*q[1]*q[3]+2*q[2]*q[0]);
-//		Q[3] = 0.0f;
-//		Q[4] = (float) (2*q[1]*q[2]+2*q[3]*q[0]);
-//		Q[5] = (float) (1-2*Math.pow(q[1],2)-2*Math.pow(q[3],2));
-//		Q[6] = (float) (2*q[3]*q[2]-2*q[1]*q[0]);
-//		Q[7] = 0.0f;
-//		Q[8] = (float) (2*q[3]*q[1]-2*q[2]*q[0]);
-//		Q[9] = (float) (2*q[3]*q[2]+2*q[1]*q[0]);
-//		Q[10] = (float) (1-2*Math.pow(q[1],2)-2*Math.pow(q[2],2));
-//		Q[11] = 0.0f;
-//		Q[12] = 0.0f;
-//		Q[13] = 0.0f;
-//		Q[14] = 0.0f;
-//		Q[15] = 1.0f;	
-		
 		SensorManager.getRotationMatrixFromVector(Q, event.values);
 		SensorManager.getOrientation(Q, rotvec);
 		
@@ -425,28 +393,4 @@ public class ARActivity extends Activity implements SensorEventListener {
 		mGLView.requestRender();
 
 	}
-
-	private OnSeekBarChangeListener myZoomBarOnSeekBarChangeListener = new OnSeekBarChangeListener() {
-		public void onProgressChanged(SeekBar seekBar, int progress,
-				boolean fromUser) {
-			// updateDataOnZoom();
-			// camScreen.invalidate();
-//			mGLView.requestRender();
-		}
-
-		public void onStartTrackingTouch(SeekBar seekBar) {
-			// Ignore
-		}
-
-		public void onStopTrackingTouch(SeekBar seekBar) {
-			// updateDataOnZoom();
-			// camScreen.invalidate();
-		}
-	};
-
-	public static void removeLocUpdates() {
-		// TODO Auto-generated method stub
-		manager.removeUpdates(listener);
-	}
-
 }

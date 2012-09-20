@@ -72,10 +72,10 @@ public class InteractiveRenderer implements Renderer {
 	 * coordinate so we can get translations to work when we multiply this by
 	 * our transformation matrices.
 	 */
-	private final float[] mLightPosInModelSpace = new float[] { -5000f, 5000f,
-			20000f, 1.0f };
-//	private final float[] mLightPosInModelSpace = new float[] { 0f, -10000f,
-//			10000f, 1.0f };
+//	private final float[] mLightPosInModelSpace = new float[] { -5000f, 5000f,
+//			20000f, 1.0f };
+	private final float[] mLightPosInModelSpace = new float[] { 0f, -10000f,
+			10000f, 1.0f };
 	/**
 	 * Used to hold the current position of the light in world space (after
 	 * transformation via model matrix).

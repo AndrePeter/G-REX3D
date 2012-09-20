@@ -348,6 +348,7 @@ public class GOCADConnector {
 		InteractiveRenderer.xExtent = (maxX-minX);
 		Log.d("xextent", Float.toString((maxX-minX)));
 		ARRenderer.xExtent = (maxX-minX);
+		
 		Log.d("xExtent", Float.toString(InteractiveRenderer.xExtent));
 //		HelloOpenGLES20Renderer.yExtent = (maxY-minY);
 //		Log.d("yExtent", Float.toString(HelloOpenGLES20Renderer.yExtent));
