@@ -67,7 +67,7 @@ public class VerticalSeekBar extends SeekBar {
     public boolean onTouchEvent(MotionEvent event) {
 //    	ARActivity.removeLocUpdates();
     	if (!isEnabled()) {
-    	setMax((int) ARRenderer.eyeZ);
+    	setMax((int) ARRenderer.eyeZ + 1);
     	Log.d("test", "neu enabled");
     	}
     	setEnabled(true);

@@ -76,10 +76,10 @@ public static final boolean ZoomDown = false;
 	 * coordinate so we can get translations to work when we multiply this by
 	 * our transformation matrices.
 	 */
-//	private final float[] mLightPosInModelSpace = new float[] { -5000f, 5000f,
-//			20000f, 1.0f };
-	private final float[] mLightPosInModelSpace = new float[] { 0f, -10000f,
-			10000f, 1.0f };
+	private final float[] mLightPosInModelSpace = new float[] { -5000f, 5000f,
+			20000f, 1.0f };
+//	private final float[] mLightPosInModelSpace = new float[] { 0f, -10000f,
+//			10000f, 1.0f };
 	/**
 	 * Used to hold the current position of the light in world space (after
 	 * transformation via model matrix).
@@ -309,8 +309,10 @@ public static final boolean ZoomDown = false;
 		Matrix.setIdentityM(mMOMatrix, 0);
 		Matrix.setIdentityM(mVMatrix, 0);
 			mMMatrix = ARActivity.Q;
-			Matrix.translateM(mVMatrix, 0, mMOMatrix, 0, eyeX, eyeY, -eyeZ);
+			Matrix.translateM(mVMatrix, 0, mMOMatrix, 0, -eyeX, -eyeY, -eyeZ);
 			Matrix.multiplyMM(mMVMatrix, 0, mMMatrix, 0, mVMatrix, 0);
+//			Matrix.scaleM(mMVMatrix, 0, 2, 2, 2);
+			
 			
 		// Calculate light position
 		calcLightPos();
@@ -388,9 +390,11 @@ public static final boolean ZoomDown = false;
 		GLES20.glViewport(0, 0, width, height);
 
 		float ratio = (float) width / height;
+		Log.d("ratio",Float.toString(ratio));
 		// this projection matrix is applied to object coodinates
 		// in the onDrawFrame() method
-		Matrix.frustumM(mProjMatrix, 0, -ratio, ratio, -1, 1, 1f, xExtent + 5000);
+//		Matrix.frustumM(mProjMatrix, 0, -ratio, ratio, -1, 1, 1f, xExtent + 5000);
+		Matrix.perspectiveM(mProjMatrix, 0, 49.465f, ratio, 1, 1000);
 
 	}
 

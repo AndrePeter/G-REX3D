@@ -365,17 +365,19 @@ public class ARActivity extends Activity implements SensorEventListener {
 		mSensorManager.registerListener(this,
 				mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR),
 				SensorManager.SENSOR_DELAY_FASTEST);
+		
 	}
 
 	public void onAccuracyChanged(Sensor sensor, int accuracy) {
 		// TODO Auto-generated method stub
+		Log.d("accuracy", Integer.toString(accuracy));
 
 	}
 
 	public void onSensorChanged(SensorEvent event) {
-
-		SensorManager.getRotationMatrixFromVector(Q, event.values);
-		SensorManager.getOrientation(Q, rotvec);
+		
+		SensorManager.getRotationMatrixFromVector(RotMat, event.values);
+		SensorManager.getOrientation(RotMat, rotvec);
 		
 		pitch = (float) (rotvec[1]*180.0f/Math.PI);
 		roll = (float) (rotvec[2]*180.0f/Math.PI);
@@ -385,10 +387,10 @@ public class ARActivity extends Activity implements SensorEventListener {
 			t3.setText("roll " + Float.toString(roll));
 			t1.setText("azimuth " + Float.toString(azimuth));
 		
-				
+		System.arraycopy(RotMat, 0, Q, 0, 16);
 		/// if device ALWAYS PORTRAIT !!!!
 //		SensorManager.remapCoordinateSystem(RotMat, SensorManager.AXIS_Y,
-//				SensorManager.AXIS_MINUS_X, RotMat);
+//				SensorManager.AXIS_MINUS_X, Q);
 		
 		mGLView.requestRender();
 
