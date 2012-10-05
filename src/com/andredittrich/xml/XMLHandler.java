@@ -21,6 +21,7 @@ public class XMLHandler extends DefaultHandler {
 	public ArrayList<String> data = new ArrayList<String>();
 	public HashMap<String,String> data1 = new HashMap<String,String>();
 	
+	
 	public XMLHandler(String[] tags) {
 		// TODO Auto-generated constructor stub
 		searchTags = Arrays.asList(tags);		
